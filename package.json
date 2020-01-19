@@ -1,0 +1,10 @@
+{
+  "name": "svg-screencast",
+  "version": "0.0.1",
+  "scripts": {
+    "start": "electron ."
+  },
+  "dependencies": {
+    "electron": "^7.1.9"
+  }
+}
