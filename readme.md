@@ -17,6 +17,16 @@ an animation, a screencast of the Electron window, is created.
 
 ## To-Do
 
+### See if looping would be possible to do in the CSS animation
+
+Would probably have to play around with the animation delay and duration or use
+a two step animation for each frame.
+
+### Add an option to flip back to the first frame at the end of the video
+
+Do this by creating a CSS rule targetting all images with IDs and hiding them
+using an animation.
+
 ### Consider optionally adding a scrubbar or another animation length indicator
 
 ### Capture the cursor and include it in the animation as a standalone image
