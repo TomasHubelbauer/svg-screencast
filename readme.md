@@ -1,5 +1,7 @@
 # SVG Screencast
 
+![](screencast.svg)
+
 ## Running
 
 `npm start` (`electron .`)
