@@ -1,52 +1,24 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, screen } = require('electron');
 const fs = require('fs-extra');
 
-// Crash on an error
+// Crash on an unhandled promise rejection error
 process.once('unhandledRejection', error => { throw error; });
 
 app.once('ready', () => {
-  const recordWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
-    x: 100,
-    y: 100
-  });
-
-  recordWindow.loadFile('index.html');
-
-  const previewWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
-    x: 108,
-    y: 151,
-    transparent: true,
-    frame: false,
-    alwaysOnTop: true,
-    skipTaskbar: true
-  });
-
-  previewWindow.loadFile('preview.html');
-  previewWindow.setIgnoreMouseEvents(true);
+  const window = new BrowserWindow({ width: 800, height: 600 });
+  window.loadFile('index.html');
 
   const screencast = new SvgScreencast('screencast.svg');
-  recordWindow.webContents.once('dom-ready', async () => {
-    while (!recordWindow.isDestroyed()) {
-      const bounds = await screencast.cast(await recordWindow.capturePage());
-      if (bounds) {
-        // Check this after the first `await` to avoid race condition
-        if (previewWindow.isDestroyed()) {
-          break;
-        }
-
-        previewWindow.webContents.executeJavaScript(`highlight(${JSON.stringify(bounds)});`);
+  window.webContents.once('dom-ready', async () => {
+    while (!window.isDestroyed()) {
+      const frame = await screencast.cast(await window.capturePage());
+      if (frame) {
+        console.log('Written patch ', frame);
       }
     }
 
     await screencast.seal();
   });
-
-  // Link closing of the two windows together
-  recordWindow.once('close', () => previewWindow.close());
 });
 
 class SvgScreencast {
@@ -62,23 +34,23 @@ class SvgScreencast {
       this.frame = 0;
 
       const { width, height } = this.screenshot.getSize();
-      await fs.writeFile(this.name, `<!-- SVG Screencast -->
-<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-<image href="${this.screenshot.toDataURL()}" />
-<style>
-  image[id] { visibility: hidden; }
-  @keyframes cast { to { visibility: visible; } }
-</style>
-`);
+      await fs.writeFile(this.name, [
+        '<!-- SVG Screencast -->',
+        `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">`,
+        `<image href="${this.screenshot.toDataURL()}" />`,
+        '<style>',
+        '  image[id] { visibility: hidden; }',
+        '  @keyframes cast { to { visibility: visible; } }',
+        '</style>',
+      ].join('\n'));
 
-      console.log('initial frame', width, height);
       return;
     }
 
     const { width, height } = this.screenshot.getSize();
     const screenshotSize = screenshot.getSize();
     if (screenshotSize.width !== width || screenshotSize.height !== height) {
-      throw new Error(`Screenshot sizes begun to differ: ${width}×${height} vs ${screenshotSize.width}×${screenshotSize.height}`);
+      throw new Error(`Screenshot sizes differ: ${width}×${height} vs ${screenshotSize.width}×${screenshotSize.height}`);
     }
 
     const bitmap = this.screenshot.getBitmap();
@@ -123,11 +95,12 @@ class SvgScreencast {
     const crop = this.screenshot.crop({ x: minX, y: minY, width: maxX - minX + 1, height: maxY - minY + 1 });
     this.frame++;
     const stamp = ~~(new Date() - this.stamp);
-    console.log('frame', this.frame, 'at', stamp, minY, minY, maxX - minX + 1, maxY - minY + 1);
-    await fs.appendFile(this.name, `
-<style>#_${this.frame} { animation: cast 0ms ${stamp}ms forwards; }</style>
-<image id="_${this.frame}" x="${minX}" y="${minY}" href="${crop.toDataURL()}" />
-`);
+    await fs.appendFile(this.name, [
+      `<style>#_${this.frame} { animation: cast 0ms ${stamp}ms forwards; }</style>`,
+      `<image id="_${this.frame}" x="${minX}" y="${minY}" href="${crop.toDataURL()}" />`,
+    ].join('\n'));
+
+    return this.frame;
   }
 
   async seal() {

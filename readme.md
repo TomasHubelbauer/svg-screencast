@@ -17,6 +17,10 @@ an animation, a screencast of the Electron window, is created.
 
 ## To-Do
 
+### Make it work in iOS Safari
+
+I'm probably missing a vendor prefix.
+
 ### Consider looking into headless software rendering just because
 
 https://medium.com/@mohamedmansour/how-to-run-electron-js-in-software-rendering-headless-49601b87961e
@@ -36,6 +40,17 @@ using an animation.
 ### Capture the cursor and include it in the animation as a standalone image
 
 Move the image using CSS animations.
+Use `electron.screen.getCursorScreenPoint` and subtract the window position from
+it. Introduce a new method `point` distinct from `cast` which emits the `style`
+element for moving the cursor. If the cursor tracking and rendering was enabled,
+on the first frame, also emit the initial cursor `image` element and hide the
+cursor off screen before it is first moved to the viewport.
+
+This will not capture various different cursor states, to have that, we'd either
+need to query the system to find the current cursor style or add a `mouseMove`
+hook to the client page and relay the cursor state information to the main
+process assuming the client page's JavaScript can tell what's the current cursor
+state.
 
 ### Display keystrokes in the animation optionally
 
