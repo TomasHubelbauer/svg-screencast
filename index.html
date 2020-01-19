@@ -3,9 +3,27 @@
   <head>
     <meta charset="utf-8" />
     <title>SVG Screencast</title>
+    <style>
+      html {
+        height: 100%;
+      }
+
+      body {
+        /* Prevent transparent screenshot */
+        background: white;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        margin: 0;
+      }
+
+      textarea {
+        flex: 1;
+        margin: 1em;
+      }
+    </style>
   </head>
   <body>
-    <h1>SVG Screencast</h1>
-    <textarea></textarea>
+    <textarea>SVG Screencast</textarea>
   </body>
 </html>
