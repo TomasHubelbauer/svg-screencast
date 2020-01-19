@@ -17,6 +17,10 @@ an animation, a screencast of the Electron window, is created.
 
 ## To-Do
 
+### Consider looking into headless software rendering just because
+
+https://medium.com/@mohamedmansour/how-to-run-electron-js-in-software-rendering-headless-49601b87961e
+
 ### See if looping would be possible to do in the CSS animation
 
 Would probably have to play around with the animation delay and duration or use
