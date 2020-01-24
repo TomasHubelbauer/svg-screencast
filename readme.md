@@ -1,5 +1,7 @@
 # SVG Screencast
 
+[**DEMO**](https://tomashubelbauer.github.io/svg-screencast/screencast.svg.html)
+
 ![](screencast.svg)
 
 > SVG Screencast is a tool for creating animated SVGs using CSS animations and

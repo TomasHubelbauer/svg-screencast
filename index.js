@@ -44,6 +44,22 @@ class SvgScreencast {
         '</style>',
       ].join('\n'));
 
+      await fs.writeFile(this.name + '.html', [
+        '<!DOCTYPE html>',
+        '<html lang="en">',
+        '<head>',
+        '<meta charset="utf-8" />',
+        `<title>${this.name}</title>`,
+        '<style>',
+        'img { box-shadow: 0 0 2px 2px rgba(0, 0, 0, .25); }',
+        '</style>',
+        '</head>',
+        '<body>',
+        `<h1>${this.name}</h1>`,
+        `<p>Start with a ${width}×${height} screenshot:</p>`,
+        `<img width="${width}" height="${height}" src="${this.screenshot.toDataURL()}" />`
+      ].join('\n'));
+
       return;
     }
 
@@ -98,13 +114,19 @@ class SvgScreencast {
 
     const x = minX;
     const y = minY;
-
     const crop = this.screenshot.crop({ x, y, width, height });
+
     this.frame++;
     const stamp = ~~(new Date() - this.stamp);
+
     await fs.appendFile(this.name, [
       `<style>#_${this.frame} { animation: cast 0ms ${stamp}ms forwards; }</style>`,
       `<image id="_${this.frame}" x="${x}" y="${y}" width="${width}" height="${height}" href="${crop.toDataURL()}" />`,
+    ].join('\n'));
+
+    await fs.appendFile(this.name + '.html', [
+      `<p>At ${stamp} ms and ${x}×${y}px, patch ${width}×${height} with a crop of a new screenshot:</p>`,
+      `<img width="${width}" height="${height}" src="${crop.toDataURL()}" />`,
     ].join('\n'));
 
     return this.frame;
@@ -112,5 +134,6 @@ class SvgScreencast {
 
   async seal() {
     await fs.appendFile(this.name, '\n</svg>');
+    await fs.appendFile(this.name + '.html', `\n<p>Done!</p>\n<img src="${this.name}" />\n</body>\n</html>\n`);
   }
 }
