@@ -22,12 +22,11 @@ an animation, a screencast of the Electron window, is created.
 
 ## To-Do
 
-### Allow recognizing multiple changed regions to get more gradual patches
+### Fix artifacts present with the region based diffing
 
-This will not be needed for small changes like typing, but could be helpful for
-when typing and something appears on the screen for example.
+### Consider recognizing basic motion, such as scrolling
 
-Also consider recognizing basic motion, such as scrolling. This could be done by
+This could be done by
 for each pixel finding the nearest pixel of that exact color (say in only
 horizontal or vertical position) and seeing if in the changes they all have the
 same distance (meaning a movement of the entire shape in the same direction by
