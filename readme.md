@@ -22,7 +22,12 @@ an animation, a screencast of the Electron window, is created.
 
 ## To-Do
 
-### Fix artifacts present with the region based diffing
+### Improve the diffing algorithm by collecting  clusters of changed pixels
+
+Instead of doing what the code is doing right now, collect all of the changed
+pixels and then window over them so that regions where the pixels touch side by
+side or with a gap of say one or two pixels are eclipsed in a rectangle which is
+then used for the region.
 
 ### Consider recognizing basic motion, such as scrolling
 

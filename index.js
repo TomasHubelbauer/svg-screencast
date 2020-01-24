@@ -5,7 +5,7 @@ const fs = require('fs-extra');
 process.once('unhandledRejection', error => { throw error; });
 
 app.once('ready', () => {
-  const window = new BrowserWindow({ width: 600, height: 300 });
+  const window = new BrowserWindow({ width: 600, height: 400 });
   window.loadFile('index.html');
 
   const screencast = new SvgScreencast('screencast.svg');
@@ -13,9 +13,9 @@ app.once('ready', () => {
     // Limit to two screenshots (background and patch) for now
     let frame = 0;
     const limit = undefined; // Set for debugging
-    while (!window.isDestroyed() || (limit && frame < limit)) {
+    while (!window.isDestroyed() && (!limit || frame < limit)) {
       const regions = await screencast.cast(await window.capturePage());
-      if (regions) {
+      if (regions && regions.length > 0) {
         console.log('At frame', frame, 'patched', regions);
       }
 
@@ -63,6 +63,13 @@ class SvgScreencast {
         '<style>',
         'img { box-shadow: 0 0 2px 2px rgba(0, 0, 0, .25); }',
         '</style>',
+        '<script>',
+        `window.addEventListener('load', () => {`,
+        `document.querySelectorAll('img').forEach(img => {`,
+        `img.addEventListener('mousemove', event => document.title = event.offsetX + ' ' + event.offsetY)`,
+        '})',
+        '})',
+        '</script>',
         '</head>',
         '<body>',
         `<h1>${this.name}</h1>`,
@@ -81,6 +88,8 @@ class SvgScreencast {
 
     const bitmap = this.screenshot.getBitmap();
     const screenshotBitmap = screenshot.getBitmap();
+
+    const threshold = 5;
     const regions = [];
     for (let x = 0; x < width; x++) {
       for (let y = 0; y < height; y++) {
@@ -94,11 +103,24 @@ class SvgScreencast {
 
           // Determine if any of the existing regions touches the changed pixel
           for (const region of regions) {
-            // Extend the region horizontally and vertically if the changed pixel touches its sides in the direction of iteration
-            if (x <= region.x + region.width && y <= region.y + region.height) {
-              region.width = Math.max(region.width, x - region.x + 1);
-              region.height = Math.max(region.height, y - region.y + 1);
-              //console.log(x, y, 'Extended region', region);
+            // Leave the region as-is if it already contains the changed pixel
+            if (x >= region.x && x <= region.x + region.width && y >= region.y && y <= region.y + region.height) {
+              touch = true;
+              break;
+            }
+
+            // Inflate the region by the modulated threshold value to see if it could contain the changed pixel
+            const regionX = Math.max(region.x - threshold, 0);
+            const regionY = Math.max(region.y - threshold, 0);
+            const regionWidth = Math.min(region.width + threshold * 2, width - regionX);
+            const regionHeight = Math.min(region.height + threshold * 2, height - regionY);
+
+            // Commit the inflation to the region if it caught the changed pixel
+            if (x >= regionX && x <= regionX + regionWidth && y >= regionY && y <= regionY + regionHeight) {
+              region.x = regionX;
+              region.y = regionY;
+              region.width = regionWidth;
+              region.height = regionHeight;
               touch = true;
               break;
             }
@@ -106,8 +128,8 @@ class SvgScreencast {
 
           // Create a new region in case the changed pixel didn't touch any existing region
           if (!touch) {
-            //console.log(x, y, 'Created region');
-            regions.push({ x, y, width: 1, height: 1 });
+            // Confine the regions to a perfect grid by quantizing the x and y
+            regions.push({ x: ~~(x / threshold) * threshold, y: ~~(y / threshold) * threshold, width: threshold * 2, height: threshold * 2 });
           }
         }
       }
@@ -117,20 +139,30 @@ class SvgScreencast {
     delete this.screenshot;
     this.screenshot = screenshot;
 
-    for (const region of regions) {
-      const { x, y, width, height } = region;
-      const crop = this.screenshot.crop({ x, y, width, height });
+    if (regions.length > 0) {
       const stamp = ~~(new Date() - this.stamp);
-      this.frame++;
-
-      await fs.appendFile(this.name, [
-        `<style>#_${this.frame} { animation: cast 0ms ${stamp}ms forwards; }</style>`,
-        `<image id="_${this.frame}" x="${x}" y="${y}" width="${width}" height="${height}" href="${crop.toDataURL()}" />`,
+      await fs.appendFile(this.name + '.html', [
+        `<p>At ${stamp} ms, patch ${regions.length} background regions with the new screenshot:</p>`,
+        '<div style="position: relative;">',
       ].join('\n'));
+      for (const region of regions) {
+        const { x, y, width, height } = region;
+        const crop = this.screenshot.crop({ x, y, width, height });
+        this.frame++;
+
+        await fs.appendFile(this.name, [
+          `<style>#_${this.frame} { animation: cast 0ms ${stamp}ms forwards; }</style>`,
+          `<image id="_${this.frame}" x="${x}" y="${y}" width="${width}" height="${height}" href="${crop.toDataURL()}" />`,
+        ].join('\n'));
+
+        await fs.appendFile(this.name + '.html', [
+          `<img width="${width}" height="${height}" style="position: absolute; left: ${x}px; top: ${y}px;" src="${crop.toDataURL()}" />`,
+        ].join('\n'));
+      }
 
       await fs.appendFile(this.name + '.html', [
-        `<p>At frame #${this.frame}, ${stamp} ms, ${x}×${y}px, patch ${width}×${height} with a crop of a new screenshot:</p>`,
-        `<img width="${width}" height="${height}" src="${crop.toDataURL()}" />`,
+        `<img src="${this.screenshot.toDataURL()}" />`,
+        '</div>',
       ].join('\n'));
     }
 

@@ -21,29 +21,24 @@
         flex: 1;
         margin: 1em;
       }
-
     </style>
     <script>
-      const content = `
+      const lines = [
+        'SVG Screencast is a tool for generating animated SVG (using CSS animation) screencasts.'
+        + ' The tool is fed a series of screenshots with timestamps and generates a single self-'
+        + ' contained animated SVG file.',
+        'The screenshots are compared frame by frame to find only the changed region and reuse'
+        + ' the unchanged background resulting in small file sizes.',
+        'I have not compared SVG Screenshot to animated GIFs in terms of size (also size when'
+        + ' GZIP\'d), but it provides at least two benefits over GIFs: support for transparency and'
+        + ' full color support.',
+        'I will provide comparisons with GIF and APNG when I\'ve made some.',
+        'I hope you\'ll find this project useful. I have many ideas for improvement and will be'
+        + ' glad to hear your feedback or review your contribution!',
+        'Tom'
+      ];
 
-SVG Screencast is a tool for generating animated SVG (using CSS animation) screencasts.
-The tool is fed a series of screenshots with timestamps and generates a single self-
-contained animated SVG file.
-
-The screenshots are compared frame by frame to find only the changed region and reuse
-the unchanged background resulting in small file sizes.
-
-I have not compared SVG Screenshot to animated GIFs in terms of size (also size when
-GZIP'd), but it provides at least two benefits over GIFs: support for transparency and
-full color support.
-
-I will provide comparisons with GIF and APNG when I've made some.
-
-I hope you'll find this project useful. I have many ideas for improvement and will be
-glad to hear your feedback or review your contribution!
-
-Tom
-`;
+      const content = '\n' + lines.join('\n\n');
 
       let cursor = 0;
       window.addEventListener('load', () => {
