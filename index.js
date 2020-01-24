@@ -10,11 +10,21 @@ app.once('ready', () => {
 
   const screencast = new SvgScreencast('screencast.svg');
   window.webContents.once('dom-ready', async () => {
-    while (!window.isDestroyed()) {
-      const frame = await screencast.cast(await window.capturePage());
-      if (frame) {
-        console.log('Written patch ', frame);
+    // Limit to two screenshots (background and patch) for now
+    let frame = 0;
+    const limit = undefined; // Set for debugging
+    while (!window.isDestroyed() || (limit && frame < limit)) {
+      const regions = await screencast.cast(await window.capturePage());
+      if (regions) {
+        console.log('At frame', frame, 'patched', regions);
       }
+
+      frame++;
+    }
+
+    // Close the window in case the loop ended at the frame limit and not by the user closing it
+    if (!window.isDestroyed()) {
+      window.close();
     }
 
     await screencast.seal();
@@ -63,8 +73,7 @@ class SvgScreencast {
       return;
     }
 
-    // Make mutable to be able to reuse for the crop size
-    let { width, height } = this.screenshot.getSize();
+    const { width, height } = this.screenshot.getSize();
     const screenshotSize = screenshot.getSize();
     if (screenshotSize.width !== width || screenshotSize.height !== height) {
       throw new Error(`Screenshot sizes differ: ${width}×${height} vs ${screenshotSize.width}×${screenshotSize.height}`);
@@ -72,30 +81,33 @@ class SvgScreencast {
 
     const bitmap = this.screenshot.getBitmap();
     const screenshotBitmap = screenshot.getBitmap();
-    let minX;
-    let minY;
-    let maxX;
-    let maxY;
+    const regions = [];
     for (let x = 0; x < width; x++) {
       for (let y = 0; y < height; y++) {
         const index = y * width * 4 + x * 4;
         const rgba = bitmap.slice(index, index + 3);
         const screenshotRgba = screenshotBitmap.slice(index, index + 3);
+
+        // Detect if the given pixel has changed since the last screenshot
         if (rgba.some((component, index) => screenshotRgba[index] !== component)) {
-          if (minX === undefined || x < minX) {
-            minX = x;
+          let touch = false;
+
+          // Determine if any of the existing regions touches the changed pixel
+          for (const region of regions) {
+            // Extend the region horizontally and vertically if the changed pixel touches its sides in the direction of iteration
+            if (x <= region.x + region.width && y <= region.y + region.height) {
+              region.width = Math.max(region.width, x - region.x + 1);
+              region.height = Math.max(region.height, y - region.y + 1);
+              //console.log(x, y, 'Extended region', region);
+              touch = true;
+              break;
+            }
           }
 
-          if (minY === undefined || y < minY) {
-            minY = y;
-          }
-
-          if (maxX === undefined || x > maxX) {
-            maxX = x;
-          }
-
-          if (maxY === undefined || y > maxY) {
-            maxY = y;
+          // Create a new region in case the changed pixel didn't touch any existing region
+          if (!touch) {
+            //console.log(x, y, 'Created region');
+            regions.push({ x, y, width: 1, height: 1 });
           }
         }
       }
@@ -104,32 +116,25 @@ class SvgScreencast {
     // Dispose the existing screenshot just in case (hopefully it gets GC'd okay)
     delete this.screenshot;
     this.screenshot = screenshot;
-    if (minX === undefined && minY === undefined && maxX === undefined && maxY === undefined) {
-      return;
+
+    for (const region of regions) {
+      const { x, y, width, height } = region;
+      const crop = this.screenshot.crop({ x, y, width, height });
+      const stamp = ~~(new Date() - this.stamp);
+      this.frame++;
+
+      await fs.appendFile(this.name, [
+        `<style>#_${this.frame} { animation: cast 0ms ${stamp}ms forwards; }</style>`,
+        `<image id="_${this.frame}" x="${x}" y="${y}" width="${width}" height="${height}" href="${crop.toDataURL()}" />`,
+      ].join('\n'));
+
+      await fs.appendFile(this.name + '.html', [
+        `<p>At frame #${this.frame}, ${stamp} ms, ${x}×${y}px, patch ${width}×${height} with a crop of a new screenshot:</p>`,
+        `<img width="${width}" height="${height}" src="${crop.toDataURL()}" />`,
+      ].join('\n'));
     }
 
-    // Add 1 to both the width and height because a 1x1 pixel change will have the same mix and max
-    width = maxX - minX + 1;
-    height = maxY - minY + 1;
-
-    const x = minX;
-    const y = minY;
-    const crop = this.screenshot.crop({ x, y, width, height });
-
-    this.frame++;
-    const stamp = ~~(new Date() - this.stamp);
-
-    await fs.appendFile(this.name, [
-      `<style>#_${this.frame} { animation: cast 0ms ${stamp}ms forwards; }</style>`,
-      `<image id="_${this.frame}" x="${x}" y="${y}" width="${width}" height="${height}" href="${crop.toDataURL()}" />`,
-    ].join('\n'));
-
-    await fs.appendFile(this.name + '.html', [
-      `<p>At ${stamp} ms and ${x}×${y}px, patch ${width}×${height} with a crop of a new screenshot:</p>`,
-      `<img width="${width}" height="${height}" src="${crop.toDataURL()}" />`,
-    ].join('\n'));
-
-    return this.frame;
+    return regions;
   }
 
   async seal() {
