@@ -5,7 +5,7 @@ const fs = require('fs-extra');
 process.once('unhandledRejection', error => { throw error; });
 
 app.once('ready', () => {
-  const window = new BrowserWindow({ width: 800, height: 600 });
+  const window = new BrowserWindow({ width: 600, height: 300 });
   window.loadFile('index.html');
 
   const screencast = new SvgScreencast('screencast.svg');
@@ -37,7 +37,7 @@ class SvgScreencast {
       await fs.writeFile(this.name, [
         '<!-- SVG Screencast -->',
         `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">`,
-        `<image href="${this.screenshot.toDataURL()}" />`,
+        `<image width="${width}" height="${height}" href="${this.screenshot.toDataURL()}" />`,
         '<style>',
         '  image[id] { visibility: hidden; }',
         '  @keyframes cast { to { visibility: visible; } }',
@@ -47,7 +47,8 @@ class SvgScreencast {
       return;
     }
 
-    const { width, height } = this.screenshot.getSize();
+    // Make mutable to be able to reuse for the crop size
+    let { width, height } = this.screenshot.getSize();
     const screenshotSize = screenshot.getSize();
     if (screenshotSize.width !== width || screenshotSize.height !== height) {
       throw new Error(`Screenshot sizes differ: ${width}×${height} vs ${screenshotSize.width}×${screenshotSize.height}`);
@@ -92,12 +93,18 @@ class SvgScreencast {
     }
 
     // Add 1 to both the width and height because a 1x1 pixel change will have the same mix and max
-    const crop = this.screenshot.crop({ x: minX, y: minY, width: maxX - minX + 1, height: maxY - minY + 1 });
+    width = maxX - minX + 1;
+    height = maxY - minY + 1;
+
+    const x = minX;
+    const y = minY;
+
+    const crop = this.screenshot.crop({ x, y, width, height });
     this.frame++;
     const stamp = ~~(new Date() - this.stamp);
     await fs.appendFile(this.name, [
       `<style>#_${this.frame} { animation: cast 0ms ${stamp}ms forwards; }</style>`,
-      `<image id="_${this.frame}" x="${minX}" y="${minY}" href="${crop.toDataURL()}" />`,
+      `<image id="_${this.frame}" x="${x}" y="${y}" width="${width}" height="${height}" href="${crop.toDataURL()}" />`,
     ].join('\n'));
 
     return this.frame;

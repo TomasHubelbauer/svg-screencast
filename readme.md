@@ -2,6 +2,9 @@
 
 ![](screencast.svg)
 
+> SVG Screencast is a tool for creating animated SVGs using CSS animations and
+> a series of 
+
 SVG Screencast is a project which generates animated SVG files by using CSS
 animations to reveal elements.
 
@@ -28,10 +31,6 @@ horizontal or vertical position) and seeing if in the changes they all have the
 same distance (meaning a movement of the entire shape in the same direction by
 the same amount), then taking the boundary box of that, clipping it and patching
 with it.
-
-### Make it work in iOS Safari
-
-I'm probably missing a vendor prefix.
 
 ### Consider looking into headless software rendering just because
 

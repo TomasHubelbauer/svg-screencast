@@ -21,9 +21,52 @@
         flex: 1;
         margin: 1em;
       }
+
     </style>
+    <script>
+      const content = `
+
+SVG Screencast is a tool for generating animated SVG (using CSS animation) screencasts.
+The tool is fed a series of screenshots with timestamps and generates a single self-
+contained animated SVG file.
+
+The screenshots are compared frame by frame to find only the changed region and reuse
+the unchanged background resulting in small file sizes.
+
+I have not compared SVG Screenshot to animated GIFs in terms of size (also size when
+GZIP'd), but it provides at least two benefits over GIFs: support for transparency and
+full color support.
+
+I will provide comparisons with GIF and APNG when I've made some.
+
+I hope you'll find this project useful. I have many ideas for improvement and will be
+glad to hear your feedback or review your contribution!
+
+Tom
+`;
+
+      let cursor = 0;
+      window.addEventListener('load', () => {
+        const showcaseTextArea = document.getElementById('showcaseTextArea');
+        showcaseTextArea.focus();
+        showcaseTextArea.select();
+
+        function tick() {
+          showcaseTextArea.textContent += content[cursor++];
+          showcaseTextArea.setSelectionRange(showcaseTextArea.textContent.length - 1, showcaseTextArea.textContent.length);
+          if (cursor < content.length) {
+            window.setTimeout(tick, Math.random() + 50);
+          }
+          else {
+            window.close();
+          }
+        }
+
+        tick();
+      });
+    </script>
   </head>
   <body>
-    <textarea>SVG Screencast</textarea>
+    <textarea id="showcaseTextArea">SVG Screencast</textarea>
   </body>
 </html>
