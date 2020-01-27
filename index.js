@@ -94,44 +94,50 @@ class SvgScreencast {
     for (let x = 0; x < width; x++) {
       for (let y = 0; y < height; y++) {
         const index = y * width * 4 + x * 4;
-        const rgba = bitmap.slice(index, index + 3);
-        const screenshotRgba = screenshotBitmap.slice(index, index + 3);
 
-        // Detect if the given pixel has changed since the last screenshot
-        if (rgba.some((component, index) => screenshotRgba[index] !== component)) {
-          let touch = false;
+        // Skip over the current pixel if it has not changed between the two screenshots
+        if (
+          bitmap[index + 0] === screenshotBitmap[index + 0] && // R
+          bitmap[index + 1] === screenshotBitmap[index + 1] && // G
+          bitmap[index + 2] === screenshotBitmap[index + 2] && // B
+          bitmap[index + 3] === screenshotBitmap[index + 3] // A
+        ) {
+          continue;
+        }
 
-          // Determine if any of the existing regions touches the changed pixel
-          for (const region of regions) {
-            // Leave the region as-is if it already contains the changed pixel
-            if (x >= region.x && x <= region.x + region.width && y >= region.y && y <= region.y + region.height) {
-              touch = true;
-              break;
-            }
+        let touch = false;
 
-            // Inflate the region by the modulated threshold value to see if it could contain the changed pixel
-            const regionX = Math.max(region.x - threshold, 0);
-            const regionY = Math.max(region.y - threshold, 0);
-            const regionWidth = Math.min(region.width + threshold * 2, width - regionX);
-            const regionHeight = Math.min(region.height + threshold * 2, height - regionY);
-
-            // Commit the inflation to the region if it caught the changed pixel
-            if (x >= regionX && x <= regionX + regionWidth && y >= regionY && y <= regionY + regionHeight) {
-              region.x = regionX;
-              region.y = regionY;
-              region.width = regionWidth;
-              region.height = regionHeight;
-              touch = true;
-              break;
-            }
+        // Determine if any of the existing regions touches the changed pixel
+        for (const region of regions) {
+          // Leave the region as-is if it already contains the changed pixel
+          if (x >= region.x && x <= region.x + region.width && y >= region.y && y <= region.y + region.height) {
+            touch = true;
+            break;
           }
 
-          // Create a new region in case the changed pixel didn't touch any existing region
-          if (!touch) {
-            // Confine the regions to a perfect grid by quantizing the x and y
-            regions.push({ x: ~~(x / threshold) * threshold, y: ~~(y / threshold) * threshold, width: threshold * 2, height: threshold * 2 });
+          // Inflate the region by the modulated threshold value to see if it could contain the changed pixel
+          const regionX = Math.max(region.x - threshold, 0);
+          const regionY = Math.max(region.y - threshold, 0);
+          const regionWidth = Math.min(region.width + threshold * 2, width - regionX);
+          const regionHeight = Math.min(region.height + threshold * 2, height - regionY);
+
+          // Commit the inflation to the region if it caught the changed pixel
+          if (x >= regionX && x <= regionX + regionWidth && y >= regionY && y <= regionY + regionHeight) {
+            region.x = regionX;
+            region.y = regionY;
+            region.width = regionWidth;
+            region.height = regionHeight;
+            touch = true;
+            break;
           }
         }
+
+        // Create a new region in case the changed pixel didn't touch any existing region
+        if (!touch) {
+          // Confine the regions to a perfect grid by quantizing the x and y
+          regions.push({ x: ~~(x / threshold) * threshold, y: ~~(y / threshold) * threshold, width: threshold * 2, height: threshold * 2 });
+        }
+
       }
     }
 

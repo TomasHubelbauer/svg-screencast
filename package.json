@@ -2,7 +2,8 @@
   "name": "svg-screencast",
   "version": "0.0.1",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "test": "node test"
   },
   "dependencies": {
     "electron": "^7.1.9",

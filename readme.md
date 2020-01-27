@@ -20,23 +20,21 @@ an animation, a screencast of the Electron window, is created.
 
 `npm start` (`electron .`)
 
+## Testing
+
+`npm test` (`node test`)
+
 ## To-Do
 
-### Improve the diffing algorithm by collecting  clusters of changed pixels
-
-Instead of doing what the code is doing right now, collect all of the changed
-pixels and then window over them so that regions where the pixels touch side by
-side or with a gap of say one or two pixels are eclipsed in a rectangle which is
-then used for the region.
+### Make `regionize.js` pass all the tests and then switch the code to it
 
 ### Consider recognizing basic motion, such as scrolling
 
-This could be done by
-for each pixel finding the nearest pixel of that exact color (say in only
-horizontal or vertical position) and seeing if in the changes they all have the
-same distance (meaning a movement of the entire shape in the same direction by
-the same amount), then taking the boundary box of that, clipping it and patching
-with it.
+This could be done by for each pixel finding the nearest pixel of that exact
+color (say in only horizontal or vertical position) and seeing if in the changes
+they all have the same distance (meaning a movement of the entire shape in the
+same direction by the same amount), then taking the boundary box of that,
+clipping it and patching with it.
 
 ### Consider looking into headless software rendering just because
 
