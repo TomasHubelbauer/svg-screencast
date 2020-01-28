@@ -57,7 +57,8 @@
             window.setTimeout(tick, Math.random() + 50);
           }
           else {
-            window.close();
+            // Close after a delay to make sure the final state is screenshot before the window closes
+            window.setTimeout(window.close, 500);
           }
         }
 
