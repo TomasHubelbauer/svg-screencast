@@ -31,15 +31,23 @@ module.exports = function* regionize(/** @type {number} */ width, /** @type {num
       // Extend an existing region in case it matches (touches or includes) the changed pixel
       for (const region of regions) {
         // Extend the region vertically in case the changed pixel touches its bottom side
+        // Note that unlike the below case the changed pixel can never be included without
+        // touching the right side first due to the left to right iteration
         if (x >= region.x && x <= region.x + region.width && region.y + region.height === y) {
           region.height++;
           match = region;
         }
 
-        // Extend the region horizontally in case the changed pixel touches its right side
-        if (y >= region.y && y <= region.y + region.height && region.x + region.width === x) {
-          region.width++;
-          match = region;
+        if (y >= region.y && y <= region.y + region.height) {
+          // Extend the region horizontally in case the changed pixel touches its right side
+          if (region.x + region.width === x) {
+            region.width++;
+            match = region;
+          }
+          // Mark the region in case the changed pixel is in it
+          else if (x >= region.x && x <= region.x + region.width) {
+            match = region;
+          }
         }
 
         // Stretch the region in case the changed pixel is at its top-right corner
@@ -53,6 +61,7 @@ module.exports = function* regionize(/** @type {number} */ width, /** @type {num
 
       // Create a new region since no existing region matched the changed pixel
       if (match === undefined) {
+        console.log(x, y, regions);
         regions.push({ x, y, width: 1, height: 1 });
       }
     }

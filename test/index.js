@@ -5,14 +5,7 @@ function buff(/** @type {number[]} */ ...bytes) {
   return Buffer.from(new Uint8Array(bytes));
 }
 
-let sole = 'in a box';
-
 function test(/** @type {string} */ title, /** @type {number} */ width, /** @type {number} */ height, /** @type {Buffer} */ buffer1, /** @type {Buffer} */ buffer2, /** @type {Region[]} */ ...regions) {
-  if (sole && title !== sole) {
-    console.log(`${width}x${height} "${title}" skipped.`);
-    return;
-  }
-
   const _regions = [];
   for (const region of regionize(width, height, buffer1, buffer2)) {
     _regions.push(region);

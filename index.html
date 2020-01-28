@@ -19,8 +19,11 @@
 
       textarea {
         flex: 1;
+        font: normal 12pt monospace;
         margin: 1em;
+        outline: none;
       }
+
     </style>
     <script>
       const lines = [
@@ -49,6 +52,7 @@
         function tick() {
           showcaseTextArea.textContent += content[cursor++];
           showcaseTextArea.setSelectionRange(showcaseTextArea.textContent.length - 1, showcaseTextArea.textContent.length);
+          showcaseTextArea.scrollTop = showcaseTextArea.scrollHeight;
           if (cursor < content.length) {
             window.setTimeout(tick, Math.random() + 50);
           }

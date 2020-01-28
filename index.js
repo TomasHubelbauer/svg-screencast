@@ -1,11 +1,12 @@
-const { app, BrowserWindow, screen } = require('electron');
+const { app, BrowserWindow } = require('electron');
 const fs = require('fs-extra');
+const regionize = require('./regionize');
 
 // Crash on an unhandled promise rejection error
 process.once('unhandledRejection', error => { throw error; });
 
 app.once('ready', () => {
-  const window = new BrowserWindow({ width: 600, height: 400 });
+  const window = new BrowserWindow({ width: 600, height: 500 });
   window.loadFile('index.html');
 
   const screencast = new SvgScreencast('screencast.svg');
@@ -86,60 +87,7 @@ class SvgScreencast {
       throw new Error(`Screenshot sizes differ: ${width}×${height} vs ${screenshotSize.width}×${screenshotSize.height}`);
     }
 
-    const bitmap = this.screenshot.getBitmap();
-    const screenshotBitmap = screenshot.getBitmap();
-
-    const threshold = 5;
-    const regions = [];
-    for (let x = 0; x < width; x++) {
-      for (let y = 0; y < height; y++) {
-        const index = y * width * 4 + x * 4;
-
-        // Skip over the current pixel if it has not changed between the two screenshots
-        if (
-          bitmap[index + 0] === screenshotBitmap[index + 0] && // R
-          bitmap[index + 1] === screenshotBitmap[index + 1] && // G
-          bitmap[index + 2] === screenshotBitmap[index + 2] && // B
-          bitmap[index + 3] === screenshotBitmap[index + 3] // A
-        ) {
-          continue;
-        }
-
-        let touch = false;
-
-        // Determine if any of the existing regions touches the changed pixel
-        for (const region of regions) {
-          // Leave the region as-is if it already contains the changed pixel
-          if (x >= region.x && x <= region.x + region.width && y >= region.y && y <= region.y + region.height) {
-            touch = true;
-            break;
-          }
-
-          // Inflate the region by the modulated threshold value to see if it could contain the changed pixel
-          const regionX = Math.max(region.x - threshold, 0);
-          const regionY = Math.max(region.y - threshold, 0);
-          const regionWidth = Math.min(region.width + threshold * 2, width - regionX);
-          const regionHeight = Math.min(region.height + threshold * 2, height - regionY);
-
-          // Commit the inflation to the region if it caught the changed pixel
-          if (x >= regionX && x <= regionX + regionWidth && y >= regionY && y <= regionY + regionHeight) {
-            region.x = regionX;
-            region.y = regionY;
-            region.width = regionWidth;
-            region.height = regionHeight;
-            touch = true;
-            break;
-          }
-        }
-
-        // Create a new region in case the changed pixel didn't touch any existing region
-        if (!touch) {
-          // Confine the regions to a perfect grid by quantizing the x and y
-          regions.push({ x: ~~(x / threshold) * threshold, y: ~~(y / threshold) * threshold, width: threshold * 2, height: threshold * 2 });
-        }
-
-      }
-    }
+    const regions = [...regionize(width, height, this.screenshot.getBitmap(), screenshot.getBitmap())];
 
     // Dispose the existing screenshot just in case (hopefully it gets GC'd okay)
     delete this.screenshot;

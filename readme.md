@@ -26,7 +26,10 @@ an animation, a screencast of the Electron window, is created.
 
 ## To-Do
 
-### Make `regionize.js` pass all the tests and then switch the code to it
+### Fix the issue with the diff going crazy (returning a lot of regions) when scrolled
+
+Not only the moment the scroll bar appears, but each subsequent screenshot after the
+first scroll generates more and more regions.
 
 ### Consider recognizing basic motion, such as scrolling
 
