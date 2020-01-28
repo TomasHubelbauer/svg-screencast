@@ -31,6 +31,18 @@ an animation, a screencast of the Electron window, is created.
 Not only the moment the scroll bar appears, but each subsequent screenshot after the
 first scroll generates more and more regions.
 
+### Consider using SVG crop to successively reveal portions of a patch
+
+If we have successive patches in for example typing on a line
+where each letter is its own patch, we could have a heuristic
+where we merge these baby patches into a single bigger patch
+and use CSS crop filter to reveal the portions of the larger
+patch successively until it is revealed in full.
+
+This should save space by not including many small Base64 PNGs
+but instead one bigger one which is just animated in a smart
+way.
+
 ### Consider recognizing basic motion, such as scrolling
 
 This could be done by for each pixel finding the nearest pixel of that exact
