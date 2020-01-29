@@ -33,6 +33,15 @@ names for test titles. For tests based on hand crafted buffers as opposed to BMP
 add support for reading `buff` files which would be just the HEX views of the hand-
 made buffers. Or maybe just fuck it and use BMPs even for these.
 
+### Consider introducing a tunable pub-sub system to decouple screenshoting and encoding
+
+Instead of taking a screenshot after each frame decode, take screenshots as often as
+possible or at a fixed interval and queue them in memory, decoding them in parallel.
+
+Need controls for making sure the screenshots don't overflow the memory. Maybe they
+could be cached on disk (from the get-go or after a threshold) and loaded from disk
+for encoding so that the problem would become I/O bound as opposed to memory bound.
+
 ### Fix the issue with the diff going crazy (returning a lot of regions) when scrolled
 
 Not only the moment the scroll bar appears, but each subsequent screenshot after the
