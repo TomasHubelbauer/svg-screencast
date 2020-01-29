@@ -26,6 +26,11 @@ an animation, a screencast of the Electron window, is created.
 
 ## To-Do
 
+### Consider using PPM instead of the BMP in the tests
+
+Do this if VS Code supports previewing it in its image previewer, otherwise stick
+to BMP.
+
 ### Consider making the test runner file system based
 
 Walk the directories in `test` and look for the frames in them. Use the directory
