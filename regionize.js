@@ -61,7 +61,6 @@ module.exports = function* regionize(/** @type {number} */ width, /** @type {num
 
       // Create a new region since no existing region matched the changed pixel
       if (match === undefined) {
-        console.log(x, y, regions);
         regions.push({ x, y, width: 1, height: 1 });
       }
     }
