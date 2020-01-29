@@ -1,5 +1,7 @@
 require('../types');
 const regionize = require('../regionize');
+const bmpToRgba = require('./bmpToRgba');
+const fs = require('fs-extra');
 
 function buff(/** @type {number[]} */ ...bytes) {
   return Buffer.from(new Uint8Array(bytes));
@@ -49,11 +51,20 @@ function test(/** @type {string} */ title, /** @type {number} */ width, /** @typ
   console.log(`"${title}" passed.`);
 }
 
+async function testFiles(/** @type {string} */ title, /** @type {string} */ path1, /** @type {string} */ path2, /** @type {Region[]} */ ...regions) {
+  const { width: width1, height: height1, buffer: buffer1 } = bmpToRgba(await fs.readFile('test/hi/1.bmp'));
+  const { width: width2, height: height2, buffer: buffer2 } = bmpToRgba(await fs.readFile('test/hi/2.bmp'));
+  if (width1 !== width2 || height1 !== height2) {
+    throw new Error('Image sizes differ!');
+  }
+
+  test(title, width1, height1, buffer1, buffer2, ...regions);
+}
+
 const black = [0, 0, 0, 255];
 const white = [255, 255, 255, 255];
 
-// TODO: Add test cases with actual images (BMPs for easy preview and also dep-free load into RGBA buffer [alpha always 255])
-void function () {
+void async function () {
   test(
     'full region',
     2, 2,
@@ -175,5 +186,13 @@ void function () {
       ...white, ...white, ...white, ...white, ...white,
     ),
     { x: 0, y: 0, width: 5, height: 5 },
+  );
+
+  // TODO: Verify these expected regions are correct - taken from the actual for now
+  await testFiles('from images', 'test/hi/1.bmp', 'test/hi/2.bmp',
+    { x: 1, y: 3, width: 3, height: 2 },
+    { x: 6, y: 1, width: 3, height: 4 },
+    { x: 11, y: 1, width: 3, height: 4 },
+    { x: 16, y: 1, width: 3, height: 4 },
   );
 }()

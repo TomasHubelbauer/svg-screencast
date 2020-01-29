@@ -26,10 +26,23 @@ an animation, a screencast of the Electron window, is created.
 
 ## To-Do
 
+### Consider making the test runner file system based
+
+Walk the directories in `test` and look for the frames in them. Use the directory
+names for test titles. For tests based on hand crafted buffers as opposed to BMPs,
+add support for reading `buff` files which would be just the HEX views of the hand-
+made buffers. Or maybe just fuck it and use BMPs even for these.
+
 ### Fix the issue with the diff going crazy (returning a lot of regions) when scrolled
 
 Not only the moment the scroll bar appears, but each subsequent screenshot after the
 first scroll generates more and more regions.
+
+Use a BMP test for this made from the two frames, the one before it starts going crazy
+and the one on which it starts going crazy.
+
+Probably also introduce `rgbaToBmp` to be able to take the screenshots of the buffers
+and use them in tests.
 
 ### Consider using SVG crop to successively reveal portions of a patch
 
@@ -42,6 +55,10 @@ patch successively until it is revealed in full.
 This should save space by not including many small Base64 PNGs
 but instead one bigger one which is just animated in a smart
 way.
+
+Scrolling also could work like this - recognize the scroll and use
+the texture as the entire patch and just animate sliding a crop
+across it in sync with the stamps.
 
 ### Consider recognizing basic motion, such as scrolling
 
