@@ -60,13 +60,6 @@ an animation, a screencast of the Electron window, is created.
   where the whole line could be a single patch and letters revealed by enlarging
   the crop window.
 
-### Make the test runner file system based
-
-Treat directories in `test` as test cases, using their name for the test title
-and feed their frames to the screencaster. Ensure each directory only has two
-BPM files for the frames (with the same size) and a JSON file for the expected
-output (regions).
-
 ### Fix the issue with the diff going crazy (returning a lot of regions) when scrolled
 
 Not only the moment the scroll bar appears, but each subsequent screenshot after the
