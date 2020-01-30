@@ -26,6 +26,14 @@ an animation, a screencast of the Electron window, is created.
 
 ## To-Do
 
+### Fix the issue with the diff going crazy (returning a lot of regions) when scrolled
+
+Not only the moment the scroll bar appears, but each subsequent screenshot after the
+first scroll generates more and more regions.
+
+BMPs of the last good screenshot and the first bad screenshot saved into
+`test/broken`, but the export looks borked, so fix that also.
+
 ### Fix the test cases generated from the hardcoded buffers which fail to parse
 
 ### Verify `hi` test case regions are correct
@@ -56,14 +64,6 @@ an animation, a screencast of the Electron window, is created.
   patch individually. This could also be reused for detecting typing on a line
   where the whole line could be a single patch and letters revealed by enlarging
   the crop window.
-
-### Fix the issue with the diff going crazy (returning a lot of regions) when scrolled
-
-Not only the moment the scroll bar appears, but each subsequent screenshot after the
-first scroll generates more and more regions.
-
-Take BMPs of the last good frame and the first bad frame and create a test case from
-them using `rgbaToBmp`.
 
 ### Consider looking into headless software rendering just because
 
