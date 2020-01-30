@@ -2,7 +2,7 @@
 
 [**DEMO**](https://tomashubelbauer.github.io/svg-screencast/screencast.svg.html)
 
-![](screencast.svg)
+![](demo/screencast.svg)
 
 > SVG Screencast is a tool for creating animated SVGs using CSS animations and
 > a series of 
@@ -18,7 +18,10 @@ an animation, a screencast of the Electron window, is created.
 
 ## Running
 
-`npm start` (`electron .`)
+`npm start` (`electron .`) implicitly renders an SVG screencast to `demo/screencast.svg`
+
+- `npm start svg` explicitly renders an SVG screencast to `demo/screencast.svg`
+- `npm start html` explicitly renders an HTML screencast to `demo/screencast.html`
 
 ## Testing
 
