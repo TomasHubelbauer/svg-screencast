@@ -4,9 +4,6 @@
 
 ![](demo/screencast.svg)
 
-> SVG Screencast is a tool for creating animated SVGs using CSS animations and
-> a series of 
-
 SVG Screencast is a project which generates animated SVG files by using CSS
 animations to reveal elements.
 
