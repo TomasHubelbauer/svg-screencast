@@ -29,25 +29,32 @@ an animation, a screencast of the Electron window, is created.
 
 ## To-Do
 
-### Introduce an `inflation` argument to `regionize` to merge closeby regions
+### Consider and spike various techniques to optimize the animation
 
-Instead of implicitly growing by one, grow by the parameter within the bounds of
-the dimensions. This will be helpful in case there are too many regions otherwise.
-
-### Find a way to quantify the balance between region count and region areas
-
-It it better to have two small regions (with the Base64 overhead, the additional
-style element etc.) or one larger one (producing a larger area to change and
-possibly a larger image to patch)? How can we quantify this objectively?
-
-Look into dry-running adding the frame with various combinations of merging the
-many small regions into fewer larger ones and let the most efficient change win.
-Deciding on the combinations should be done by closeness of the regions (minimize
-included area of unchanged pixels in the region) and their combined size.
-
-Probably kick this login on only if there is a number of regions over a threshold
-(like 5+?). Combined with the to-do `inflation` parameter for merging close-by
-regions this could provide some savings.
+- Merge regions in case the new single, large patch works out to a smaller size
+  than the two individual patches, do this recursively while this holds true.
+  Consider making use of the fact that consecutive regions are more likely to be
+  mergable than ones further apart (e.g. when typing new characters on the line)
+  but not always (e.g. changing starts of the two lines at once or scrolls).
+  Pick candidates for merging by calculating the bounding box of the two
+  individual patches and seeing if the area of the bounds box is just slightly
+  larger than the area of the invidual patches (less unchanged pixesl in the
+  patch). But this is just a pre-filter because the real test is if the Base64
+  of the single combined patch is smaller than the two individual patches.
+- Avoid optimizing frames with a small number of regions (1, 2) as it is not
+  likely to be worth it.
+- Buffer the incoming screenshots either in memory or on disk (or switch based
+  on some threshold) and render the animation in parallel so that the rendering
+  lags do not cause stutter in the capturing loop.
+- Detect scrolls and moves of regions and use CSS animations for sliding a crop
+  across the patch which then becomes a texture or moving the patch in case of
+  a translation motion. Scaling and rotation are likely not worth it. In case of
+  scrolling, retrospection is needed so that the consecutive patches detected to
+  constitute a scroll can be merged to a single image which is cropped and the
+  crop is CSS animated instead of embedding the various windows of the whole
+  patch individually. This could also be reused for detecting typing on a line
+  where the whole line could be a single patch and letters revealed by enlarging
+  the crop window.
 
 ### Make the test runner file system based
 
@@ -56,15 +63,6 @@ and feed their frames to the screencaster. Ensure each directory only has two
 BPM files for the frames (with the same size) and a JSON file for the expected
 output (regions).
 
-### Consider introducing a tunable pub-sub system to decouple screenshoting and encoding
-
-Instead of taking a screenshot after each frame decode, take screenshots as often as
-possible or at a fixed interval and queue them in memory, decoding them in parallel.
-
-Need controls for making sure the screenshots don't overflow the memory. Maybe they
-could be cached on disk (from the get-go or after a threshold) and loaded from disk
-for encoding so that the problem would become I/O bound as opposed to memory bound.
-
 ### Fix the issue with the diff going crazy (returning a lot of regions) when scrolled
 
 Not only the moment the scroll bar appears, but each subsequent screenshot after the
@@ -72,30 +70,6 @@ first scroll generates more and more regions.
 
 Take BMPs of the last good frame and the first bad frame and create a test case from
 them using `rgbaToBmp`.
-
-### Consider using SVG crop to successively reveal portions of a patch
-
-If we have successive patches in for example typing on a line
-where each letter is its own patch, we could have a heuristic
-where we merge these baby patches into a single bigger patch
-and use CSS crop filter to reveal the portions of the larger
-patch successively until it is revealed in full.
-
-This should save space by not including many small Base64 PNGs
-but instead one bigger one which is just animated in a smart
-way.
-
-Scrolling also could work like this - recognize the scroll and use
-the texture as the entire patch and just animate sliding a crop
-across it in sync with the stamps.
-
-### Consider recognizing basic motion, such as scrolling
-
-This could be done by for each pixel finding the nearest pixel of that exact
-color (say in only horizontal or vertical position) and seeing if in the changes
-they all have the same distance (meaning a movement of the entire shape in the
-same direction by the same amount), then taking the boundary box of that,
-clipping it and patching with it.
 
 ### Consider looking into headless software rendering just because
 
