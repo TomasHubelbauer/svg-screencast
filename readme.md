@@ -26,17 +26,12 @@ an animation, a screencast of the Electron window, is created.
 
 ## To-Do
 
-### Consider using PPM instead of the BMP in the tests
+### Make the test runner file system based
 
-Do this if VS Code supports previewing it in its image previewer, otherwise stick
-to BMP.
-
-### Consider making the test runner file system based
-
-Walk the directories in `test` and look for the frames in them. Use the directory
-names for test titles. For tests based on hand crafted buffers as opposed to BMPs,
-add support for reading `buff` files which would be just the HEX views of the hand-
-made buffers. Or maybe just fuck it and use BMPs even for these.
+Treat directories in `test` as test cases, using their name for the test title
+and feed their frames to the screencaster. Ensure each directory only has two
+BPM files for the frames (with the same size) and a JSON file for the expected
+output (regions).
 
 ### Consider introducing a tunable pub-sub system to decouple screenshoting and encoding
 
@@ -52,11 +47,8 @@ for encoding so that the problem would become I/O bound as opposed to memory bou
 Not only the moment the scroll bar appears, but each subsequent screenshot after the
 first scroll generates more and more regions.
 
-Use a BMP test for this made from the two frames, the one before it starts going crazy
-and the one on which it starts going crazy.
-
-Probably also introduce `rgbaToBmp` to be able to take the screenshots of the buffers
-and use them in tests.
+Take BMPs of the last good frame and the first bad frame and create a test case from
+them using `rgbaToBmp`.
 
 ### Consider using SVG crop to successively reveal portions of a patch
 
