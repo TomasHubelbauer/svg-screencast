@@ -40,17 +40,16 @@ app.once('ready', () => {
       if (regions && regions.length > 0) {
         console.log('At frame', frame, 'patched', regions.length, 'regions');
         if (regions.length >= 10) {
-          await fs.ensureDir('test/broken');
+          await fs.ensureDir('test/broken@' + frame);
           const { width: width1, height: height1 } = lastScreenshot.getSize();
           const buffer1 = lastScreenshot.getBitmap();
-          await fs.writeFile('test/broken/1.bmp', rgbaToBmp(width1, height1, buffer1));
-          await fs.writeFile('test/broken/1.png', lastScreenshot.toPNG());
+          await fs.writeFile(`test/broken@${frame}/1.bmp`, rgbaToBmp(width1, height1, buffer1));
+          await fs.writeFile(`test/broken@${frame}/1.png`, lastScreenshot.toPNG());
           const { width: width2, height: height2 } = screenshot.getSize();
           const buffer2 = screenshot.getBitmap();
-          await fs.writeFile('test/broken/2.bmp', rgbaToBmp(width2, height2, buffer2));
-          await fs.writeFile('test/broken/2.png', screenshot.toPNG());
-          await fs.writeJson('test/broken/expected.json', [], { spaces: 2 });
-          process.exit(1);
+          await fs.writeFile(`test/broken@${frame}/2.bmp`, rgbaToBmp(width2, height2, buffer2));
+          await fs.writeFile(`test/broken@${frame}/2.png`, screenshot.toPNG());
+          await fs.writeJson(`test/broken@${frame}/expected.json`, [], { spaces: 2 });
         }
       }
 
