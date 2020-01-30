@@ -11,7 +11,7 @@ const htmlFluff = {
     `<title>${name}</title>`,
     '<style>',
     'input { display: block; margin: auto; width: 90%; }',
-    `div { background: url('${dataUrl}') no-repeat; width: ${width}px; height: ${height}px; position: relative; padding: 100% 0 0; }`,
+    `div { width: ${width}px; height: ${height}px; position: relative; background: url('${dataUrl}') no-repeat; }`,
     'img { display: none; }',
     '</style>',
     '</head>',
