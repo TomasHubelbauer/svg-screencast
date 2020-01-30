@@ -44,9 +44,11 @@ app.once('ready', () => {
           const { width: width1, height: height1 } = lastScreenshot.getSize();
           const buffer1 = lastScreenshot.getBitmap();
           await fs.writeFile('test/broken/1.bmp', rgbaToBmp(width1, height1, buffer1));
+          await fs.writeFile('test/broken/1.png', lastScreenshot.toPNG());
           const { width: width2, height: height2 } = screenshot.getSize();
           const buffer2 = screenshot.getBitmap();
           await fs.writeFile('test/broken/2.bmp', rgbaToBmp(width2, height2, buffer2));
+          await fs.writeFile('test/broken/2.png', screenshot.toPNG());
           await fs.writeJson('test/broken/expected.json', [], { spaces: 2 });
           process.exit(1);
         }

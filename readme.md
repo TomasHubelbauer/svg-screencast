@@ -32,7 +32,8 @@ Not only the moment the scroll bar appears, but each subsequent screenshot after
 first scroll generates more and more regions.
 
 BMPs of the last good screenshot and the first bad screenshot saved into
-`test/broken`, but the export looks borked, so fix that also.
+`test/broken`, but they are exported incorrectly. There also correct PNGS for a
+check.
 
 ### Fix the test cases generated from the hardcoded buffers which fail to parse
 
