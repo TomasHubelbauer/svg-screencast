@@ -34,28 +34,18 @@ module.exports = class Screencast {
     delete this.screenshot;
     this.screenshot = screenshot;
 
-    if (regions.length > 0) {
-      const stamp = ~~(new Date() - this.stamp);
-      if (this.fluff.frameProlog) {
-        await fs.appendFile(this.name + this.fluff.extension, this.fluff.frameProlog(stamp, regions));
-      }
-
-      for (const region of regions) {
-        const crop = this.screenshot.crop(region);
-        const dataUrl = crop.toDataURL();
-        this.frame++;
-        await fs.appendFile(this.name + this.fluff.extension, this.fluff.frame(this.frame, stamp, region, dataUrl));
-      }
-
-      if (this.fluff.frameEpilog) {
-        await fs.appendFile(this.name + this.fluff.extension, this.fluff.frameEpilog(this.screenshot.toDataURL()));
-      }
+    const stamp = ~~(new Date() - this.stamp);
+    for (const region of regions) {
+      const crop = this.screenshot.crop(region);
+      const dataUrl = crop.toDataURL();
+      this.frame++;
+      await fs.appendFile(this.name + this.fluff.extension, this.fluff.frame(this.frame, stamp, region, dataUrl));
     }
 
     return regions;
   }
 
   async seal() {
-    await fs.appendFile(this.name + this.fluff.extension, this.fluff.epilog(this.name));
+    await fs.appendFile(this.name + this.fluff.extension, this.fluff.epilog());
   }
 }

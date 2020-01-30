@@ -10,33 +10,36 @@ const htmlFluff = {
     '<meta charset="utf-8" />',
     `<title>${name}</title>`,
     '<style>',
-    'img { box-shadow: 0 0 2px 2px rgba(0, 0, 0, .25); }',
+    'input { display: block; margin: auto; width: 90%; }',
+    `div { background: url('${dataUrl}') no-repeat; width: ${width}px; height: ${height}px; position: relative; padding: 100% 0 0; }`,
+    'img { display: none; }',
     '</style>',
-    '<script>',
-    `window.addEventListener('load', () => {`,
-    `document.querySelectorAll('img').forEach(img => {`,
-    `img.addEventListener('mousemove', event => document.title = event.offsetX + ' ' + event.offsetY)`,
-    '})',
-    '})',
-    '</script>',
     '</head>',
     '<body>',
-    `<h1>${name}</h1>`,
-    `<p>Start with a ${width}×${height} screenshot:</p>`,
-    `<img width="${width}" height="${height}" src="${dataUrl}" />`
+    '<input id="frameInput" type="range" min="0" value="0">',
+    `<div>`,
   ].join('\n'),
-  frameProlog: (stamp, regions) => [
-    `<p>At ${stamp} ms, patch ${regions.length} background regions with the new screenshot:</p>`,
-    '<div style="position: relative;">',
+  frame: (frame, _stamp, { x, y, width, height }, dataUrl) => [
+    `<script>window.frame = ${frame};</script>`,
+    `<img id="_${frame}" width="${width}" height="${height}" style="position: absolute; left: ${x}px; top: ${y}px;" src="${dataUrl}" />`,
   ].join('\n'),
-  frame: (_frame, _stamp, { x, y, width, height }, dataUrl) => [
-    `<img width="${width}" height="${height}" style="position: absolute; left: ${x}px; top: ${y}px;" src="${dataUrl}" />`,
-  ].join('\n'),
-  frameEpilog: (dataUrl) => [
-    `<img src="${dataUrl}" />`,
+  epilog: () => [
     '</div>',
+    `<script>
+    window.addEventListener('load', () => {
+      const frameInput = document.getElementById('frameInput');
+      frameInput.max = window.frame;
+      frameInput.addEventListener('input', () => {
+        document.querySelectorAll('img').forEach(img => {
+          const frame = Number(img.id.slice('_'.length));
+          img.style.display = frameInput.valueAsNumber >= frame ? 'block' : 'none';
+        });
+      });
+    });
+    </script>`,
+    '</body>',
+    '</html>'
   ].join('\n'),
-  epilog: () => `\n<p>Done!</p>\n<img src="${this.name}" />\n</body>\n</html>\n`,
 };
 
 module.exports = htmlFluff;
