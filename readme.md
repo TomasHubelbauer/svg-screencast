@@ -26,6 +26,26 @@ an animation, a screencast of the Electron window, is created.
 
 ## To-Do
 
+### Introduce an `inflation` argument to `regionize` to merge closeby regions
+
+Instead of implicitly growing by one, grow by the parameter within the bounds of
+the dimensions. This will be helpful in case there are too many regions otherwise.
+
+### Find a way to quantify the balance between region count and region areas
+
+It it better to have two small regions (with the Base64 overhead, the additional
+style element etc.) or one larger one (producing a larger area to change and
+possibly a larger image to patch)? How can we quantify this objectively?
+
+Look into dry-running adding the frame with various combinations of merging the
+many small regions into fewer larger ones and let the most efficient change win.
+Deciding on the combinations should be done by closeness of the regions (minimize
+included area of unchanged pixels in the region) and their combined size.
+
+Probably kick this login on only if there is a number of regions over a threshold
+(like 5+?). Combined with the to-do `inflation` parameter for merging close-by
+regions this could provide some savings.
+
 ### Make the test runner file system based
 
 Treat directories in `test` as test cases, using their name for the test title
