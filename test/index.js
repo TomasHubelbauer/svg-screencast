@@ -1,7 +1,10 @@
-require('../types');
-const regionize = require('../regionize');
+require('../src/types');
+const regionize = require('../src/regionize');
 const bmpToRgba = require('./bmpToRgba');
+const klaw = require('klaw');
+const path = require('path');
 const fs = require('fs-extra');
+
 
 function buff(/** @type {number[]} */ ...bytes) {
   return Buffer.from(new Uint8Array(bytes));
@@ -51,148 +54,41 @@ function test(/** @type {string} */ title, /** @type {number} */ width, /** @typ
   console.log(`"${title}" passed.`);
 }
 
-async function testFiles(/** @type {string} */ title, /** @type {string} */ path1, /** @type {string} */ path2, /** @type {Region[]} */ ...regions) {
-  const { width: width1, height: height1, buffer: buffer1 } = bmpToRgba(await fs.readFile('test/hi/1.bmp'));
-  const { width: width2, height: height2, buffer: buffer2 } = bmpToRgba(await fs.readFile('test/hi/2.bmp'));
-  if (width1 !== width2 || height1 !== height2) {
-    throw new Error('Image sizes differ!');
-  }
-
-  test(title, width1, height1, buffer1, buffer2, ...regions);
-}
-
-const black = [0, 0, 0, 255];
-const white = [255, 255, 255, 255];
-
 void async function () {
-  test(
-    'full region',
-    2, 2,
-    buff(
-      ...black, ...black,
-      ...black, ...black,
-    ),
-    buff(
-      ...white, ...black,
-      ...black, ...white,
-    ),
-    { x: 0, y: 0, width: 2, height: 2 },
-  );
+  for await (const item of klaw(__dirname, { depthLimit: 0 })) {
+    if (!item.stats.isDirectory()) {
+      continue;
+    }
 
-  test(
-    'top half',
-    2, 2,
-    buff(
-      ...black, ...black,
-      ...black, ...black,
-    ),
-    buff(
-      ...white, ...white,
-      ...black, ...black,
-    ),
-    { x: 0, y: 0, width: 2, height: 1 },
-  );
+    const title = path.relative(__dirname, item.path);
 
-  test(
-    'bottom half',
-    2, 2,
-    buff(
-      ...black, ...black,
-      ...black, ...black,
-    ),
-    buff(
-      ...black, ...black,
-      ...white, ...white,
-    ),
-    { x: 0, y: 1, width: 2, height: 1 },
-  );
+    if (!title) {
+      continue;
+    }
 
-  test(
-    'left half',
-    2, 2,
-    buff(
-      ...black, ...black,
-      ...black, ...black,
-    ),
-    buff(
-      ...white, ...black,
-      ...white, ...black,
-    ),
-    { x: 0, y: 0, width: 1, height: 2 },
-  );
+    const path1Bmp = path.join(item.path, '1.bmp');
+    if (!await fs.pathExists(path1Bmp)) {
+      throw new Error('Did not find the initial frame BMP file of the test case.' + title);
+    }
 
-  test(
-    'right half',
-    2, 2,
-    buff(
-      ...black, ...black,
-      ...black, ...black,
-    ),
-    buff(
-      ...black, ...white,
-      ...black, ...white,
-    ),
-    { x: 1, y: 0, width: 1, height: 2 },
-  );
+    const path2Bmp = path.join(item.path, '2.bmp');
+    if (!await fs.pathExists(path2Bmp)) {
+      throw new Error('Did not find the changed frame BMP file of the test case.' + title);
+    }
 
-  test(
-    'should drop',
-    3, 3,
-    buff(
-      ...black, ...black, ...black,
-      ...black, ...black, ...black,
-      ...black, ...black, ...black,
-    ),
-    buff(
-      ...white, ...black, ...black,
-      ...black, ...black, ...black,
-      ...black, ...black, ...white,
-    ),
-    { x: 0, y: 0, width: 1, height: 1 },
-    { x: 2, y: 2, width: 1, height: 1 },
-  );
+    const pathExpectedJson = path.join(item.path, 'expected.json');
+    if (!await fs.pathExists(pathExpectedJson)) {
+      throw new Error('Did not find the expected regions JSON file of the test case ' + title);
+    }
 
-  test(
-    'forward slash',
-    3, 3,
-    buff(
-      ...black, ...black, ...black,
-      ...black, ...black, ...black,
-      ...black, ...black, ...black,
-    ),
-    buff(
-      ...black, ...black, ...white,
-      ...black, ...white, ...black,
-      ...white, ...black, ...black,
-    ),
-    { x: 0, y: 0, width: 3, height: 3 },
-  );
+    const { width, height, buffer: buffer1 } = bmpToRgba(await fs.readFile(path1Bmp));
+    const { width: checkWidth, height: checkHeight, buffer: buffer2 } = bmpToRgba(await fs.readFile(path2Bmp));
+    if (width !== checkWidth || height !== checkHeight) {
+      throw new Error('Image sizes differ!');
+    }
 
-  test(
-    'in a box',
-    5, 5,
-    buff(
-      ...black, ...black, ...black, ...black, ...black,
-      ...black, ...black, ...black, ...black, ...black,
-      ...black, ...black, ...black, ...black, ...black,
-      ...black, ...black, ...black, ...black, ...black,
-      ...black, ...black, ...black, ...black, ...black,
-    ),
-    buff(
-      ...white, ...white, ...white, ...white, ...white,
-      ...white, ...black, ...black, ...black, ...white,
-      ...white, ...black, ...white, ...black, ...white,
-      ...white, ...black, ...black, ...black, ...white,
-      ...white, ...white, ...white, ...white, ...white,
-    ),
-    { x: 0, y: 0, width: 5, height: 5 },
-  );
+    const regions = await fs.readJson(pathExpectedJson);
 
-  // TODO: Verify these expected regions are correct - taken from the actual for now
-  await testFiles('from images', 'test/hi/1.bmp', 'test/hi/2.bmp',
-    { x: 1, y: 3, width: 3, height: 2 },
-    { x: 6, y: 1, width: 3, height: 4 },
-    { x: 11, y: 1, width: 3, height: 4 },
-    { x: 16, y: 1, width: 3, height: 4 },
-  );
+    test(title, width, height, buffer1, buffer2, ...regions);
+  }
 }()

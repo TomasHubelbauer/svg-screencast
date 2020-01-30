@@ -29,6 +29,10 @@ an animation, a screencast of the Electron window, is created.
 
 ## To-Do
 
+### Fix the test cases generated from the hardcoded buffers which fail to parse
+
+### Verify `hi` test case regions are correct
+
 ### Consider and spike various techniques to optimize the animation
 
 - Merge regions in case the new single, large patch works out to a smaller size
