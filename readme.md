@@ -26,6 +26,15 @@ an animation, a screencast of the Electron window, is created.
 
 ## To-Do
 
+### Add a playback UI for the HTML version
+
+Playback should proceed at the speed based on the stamp as opposed to the
+manual movement of the slider.
+
+### Highlight the last patch visible in the HTML version to aid debugging
+
+Probably using an `outline` or a `drop-shadow`.
+
 ### Fix `rgbaToBmp` writing skewed images in `broken@` but not in `temp`
 
 It must be something with the buffers I'm getting from Electron.
