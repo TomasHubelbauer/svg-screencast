@@ -26,6 +26,10 @@ an animation, a screencast of the Electron window, is created.
 
 ## To-Do
 
+### Fix `bmpToRgba` not taking stride into an account
+
+This might be causing the `should-drop` test to fail.
+
 ### Fix the issue with the diff going crazy (returning a lot of regions) when scrolled
 
 Not only the moment the scroll bar appears, but each subsequent screenshot after the

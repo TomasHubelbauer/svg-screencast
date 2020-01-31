@@ -40,7 +40,7 @@ module.exports = function bmpTorgba(/** @type {Buffer} */ bmpBuffer) {
     throw new Error(`The raw data array length ${line * height} does not match the DIB header value ${imageSize}.`);
   }
 
-  const rawData = bmpBuffer.slice(offset, imageSize - 2 /* TODO: Figure out why the `2` */);
+  const rawData = bmpBuffer.slice(offset, offset + imageSize - 2 /* TODO: Figure out why the `2` */);
 
   const rgbaBuffer = Buffer.alloc(width * height * 4);
   let index = 0;
