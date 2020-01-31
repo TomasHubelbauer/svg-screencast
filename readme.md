@@ -35,10 +35,6 @@ BMPs of the last good screenshot and the first bad screenshot saved into
 `test/broken`, but they are exported incorrectly. There also correct PNGS for a
 check.
 
-### Fix the test cases generated from the hardcoded buffers which fail to parse
-
-### Verify `hi` test case regions are correct
-
 ### Consider and spike various techniques to optimize the animation
 
 - Merge regions in case the new single, large patch works out to a smaller size

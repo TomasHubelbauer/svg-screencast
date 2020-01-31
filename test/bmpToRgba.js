@@ -1,23 +1,24 @@
 module.exports = function bmpTorgba(/** @type {Buffer} */ bmpBuffer) {
   // Check the BMP header
   if (bmpBuffer[0] !== 0x42 || bmpBuffer[1] !== 0x4d) {
-    throw new Error('The BMP header was not found!');
+    throw new Error('The BMP header `BM` was not found!');
   }
 
   const size = bmpBuffer.slice(2, 2 + 4).readUInt32LE();
   if (size !== bmpBuffer.byteLength) {
-    throw new Error('The BMP size does not match buffer size.');
+    throw new Error(`The BMP size ${size} does not match buffer size ${bmpBuffer.byteLength}.`);
   }
 
   const offset = bmpBuffer.slice(10, 10 + 4).readUInt32LE();
 
   const headerSize = bmpBuffer.slice(14, 14 + 4).readUInt32LE();
   if (headerSize !== 40) {
-    throw new Error('The BPM DIB header is not the only supported BITMAPINFOHEADER type.');
+    throw new Error(`The BPM DIB header size ${headerSize} is not the only supported value 40 - the BITMAPINFOHEADER header type.`);
   }
 
   const width = bmpBuffer.slice(18, 18 + 4).readUInt16LE();
   const height = bmpBuffer.slice(22, 22 + 4).readUInt16LE();
+  const line = (~~((width * 3) / 4) + 1) * 4; // Line length (a multiple of 4 bytes)
 
   const colorPlanes = bmpBuffer.slice(26, 26 + 2).readUInt16LE();
   if (colorPlanes !== 1) {
@@ -35,8 +36,8 @@ module.exports = function bmpTorgba(/** @type {Buffer} */ bmpBuffer) {
   }
 
   const imageSize = bmpBuffer.slice(34, 34 + 4).readUInt32LE();
-  if (imageSize !== width * height * 3 /* 24 bits = 3 bytes */ + 2 /* TODO: Figure out why the `2` */) {
-    throw new Error('The raw data array length does not match the DIB header value.');
+  if (imageSize !== line * height) {
+    throw new Error(`The raw data array length ${line * height} does not match the DIB header value ${imageSize}.`);
   }
 
   const rawData = bmpBuffer.slice(offset, imageSize - 2 /* TODO: Figure out why the `2` */);

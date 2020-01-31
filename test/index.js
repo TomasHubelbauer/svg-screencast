@@ -5,11 +5,6 @@ const klaw = require('klaw');
 const path = require('path');
 const fs = require('fs-extra');
 
-
-function buff(/** @type {number[]} */ ...bytes) {
-  return Buffer.from(new Uint8Array(bytes));
-}
-
 function test(/** @type {string} */ title, /** @type {number} */ width, /** @type {number} */ height, /** @type {Buffer} */ buffer1, /** @type {Buffer} */ buffer2, /** @type {Region[]} */ ...regions) {
   const _regions = [];
   for (const region of regionize(width, height, buffer1, buffer2)) {
@@ -20,12 +15,12 @@ function test(/** @type {string} */ title, /** @type {number} */ width, /** @typ
 
   if (_regions.length !== regions.length) {
     console.log(`"${title}" failed! The number of regions (${_regions.length}) does not match the expected number (${regions.length}).`);
-    console.log('\tExpected regions:');
+    console.log(`\tExpected regions (${regions.length}):`);
     for (const region of regions) {
       console.log('\t', region);
     }
 
-    console.log('\tActual regions:');
+    console.log(`\tActual regions (${_regions.length}):`);
     for (const region of _regions) {
       console.log('\t', region);
     }
