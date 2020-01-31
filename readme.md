@@ -37,8 +37,8 @@ Probably using an `outline` or a `drop-shadow`.
 
 ### Fix `rgbaToBmp` writing skewed images in `broken@` but not in `temp`
 
-It must be something with the buffers I'm getting from Electron.
-I've saved them with an `rgba` extension for investigation.
+The RGBA buffers coming from Electron are not skewed as validated in
+`temp2`. This means there is a problem with the logic in `rgbaToBmp`.
 
 ### Fix the issue with the diff going crazy (returning a lot of regions) when scrolled
 

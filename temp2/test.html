@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Out</title>
+    <script src='test.js'></script>
+    <script>
+      window.addEventListener('load', () => {
+        const pixelCanvas = document.getElementById('pixelCanvas');
+        pixelCanvas.width = 1200;
+        pixelCanvas.height = 756;
+        const context = pixelCanvas.getContext('2d');
+        let index = 0;
+        do {
+          const x = (index / 4) % 1200;
+          const y = ~~((index / 4) / 1200);
+          context.fillStyle = `rgb(${rgba[index++]}, ${rgba[index++]}, ${rgba[index++]}, ${rgba[index++]})`;
+          context.fillRect(x, y, 1, 1);
+        } while (index < 1200 * 756 * 4);
+      });
+    </script>
+  </head>
+  <body>
+    <canvas id="pixelCanvas"></canvas>
+  </body>
+</html>
