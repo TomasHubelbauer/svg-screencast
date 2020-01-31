@@ -1,9 +1,11 @@
+const calculateLine = require('./calculateLine');
+
 module.exports = function rgbaToBmp(/** @type {number} */ width, /** @type {number} */ height, /** @type {Buffer} */ rgba) {
   if (rgba.byteLength !== width * height * 4) {
     throw new Error(`The RGBA buffer length (${rgba.byteLength}) does not match the dimensions: ${width}x${height}x4 (32 bpp).`);
   }
 
-  const line = (~~((width * 3) / 4) + 1) * 4; // Line length (a multiple of 4 bytes)
+  const line = calculateLine(width);
   const buffer = Buffer.alloc(14 + 40 + line * height + 2);
 
   // Write the 14 byte BMP header

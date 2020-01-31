@@ -35,11 +35,6 @@ manual movement of the slider.
 
 Probably using an `outline` or a `drop-shadow`.
 
-### Fix `rgbaToBmp` writing skewed images in `broken@` but not in `temp`
-
-The RGBA buffers coming from Electron are not skewed as validated in
-`temp2`. This means there is a problem with the logic in `rgbaToBmp`.
-
 ### Fix the issue with the diff going crazy (returning a lot of regions) when scrolled
 
 Not only the moment the scroll bar appears, but each subsequent

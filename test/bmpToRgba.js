@@ -1,3 +1,5 @@
+const calculateLine = require('./calculateLine');
+
 module.exports = function bmpTorgba(/** @type {Buffer} */ bmpBuffer) {
   // Check the BMP header
   if (bmpBuffer[0] !== 0x42 || bmpBuffer[1] !== 0x4d) {
@@ -18,7 +20,7 @@ module.exports = function bmpTorgba(/** @type {Buffer} */ bmpBuffer) {
 
   const width = bmpBuffer.slice(18, 18 + 4).readUInt16LE();
   const height = bmpBuffer.slice(22, 22 + 4).readUInt16LE();
-  const line = (~~((width * 3) / 4) + 1) * 4; // Line length (a multiple of 4 bytes)
+  const line = calculateLine(width);
 
   const colorPlanes = bmpBuffer.slice(26, 26 + 2).readUInt16LE();
   if (colorPlanes !== 1) {
