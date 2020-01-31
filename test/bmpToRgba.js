@@ -43,24 +43,22 @@ module.exports = function bmpTorgba(/** @type {Buffer} */ bmpBuffer) {
   const rawData = bmpBuffer.slice(offset, offset + imageSize - 2 /* TODO: Figure out why the `2` */);
 
   const rgbaBuffer = Buffer.alloc(width * height * 4);
-  let index = 0;
-  do {
-    const r = rawData[index * 3 + 0];
-    const g = rawData[index * 3 + 1];
-    const b = rawData[index * 3 + 2];
 
-    // Convert down-up index to up-down index
-    const x = index % width;
-    const y = height - 1 - ~~(index / width);
-    const rgbaIndex = y * width + x * 4 /* 32bit RGBA */;
+  // Traverse the lines in the bottom up order
+  for (let y = height - 1; y >= 0; y--) {
+    for (let x = 0; x < width; x++) {
+      const i = (y * line) + (x * 3);
+      const r = rawData[i + 0];
+      const g = rawData[i + 1];
+      const b = rawData[i + 2];
 
-    rgbaBuffer[rgbaIndex + 0] = r;
-    rgbaBuffer[rgbaIndex + 1] = g;
-    rgbaBuffer[rgbaIndex + 2] = b;
-    rgbaBuffer[rgbaIndex + 3] = 255; // Constant full alpha
-
-    index++;
-  } while (index < width * height);
+      const j = ((height - 1 - y) * width + x) * 4;
+      rgbaBuffer[j + 0] = r;
+      rgbaBuffer[j + 1] = g;
+      rgbaBuffer[j + 2] = b;
+      rgbaBuffer[j + 3] = 255; // Constant full alpha
+    }
+  }
 
   return { width, height, buffer: rgbaBuffer };
 }

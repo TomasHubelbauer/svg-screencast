@@ -26,22 +26,21 @@ an animation, a screencast of the Electron window, is created.
 
 ## To-Do
 
-### Fix `bmpToRgba` not taking stride into an account producing bad RGBA
+### Fix `rgbaToBmp` writing skewed images in `broken@` but not in `temp`
 
-This might be causing the `should-drop` test to fail and is also
-causing the current failures in `temp`.
-
-### Fix `rgbaToBmp` writing skewed images in `temp`
-
-This probably also causes skewed images in `broken@` test cases.
+It must be something with the buffers I'm getting from Electron.
+I've saved them with an `rgba` extension for investigation.
 
 ### Fix the issue with the diff going crazy (returning a lot of regions) when scrolled
 
 Not only the moment the scroll bar appears, but each subsequent
-screenshot after the first scroll generates more and more regions.
+screenshot after the first scroll generates more and more regions
+on Windows, on macOS it correctly generates a bunch of regions only
+the moment the scroll happens, but recovers afterwards, although it
+crashes at the very end anyway.
 
 BMPs of the last good screenshot and the first bad screenshot saved
-into `test/broken`, but the task to fix skewed results of `rgbaToBmp`
+into `test/broken`, but the task to fix skewed results in `broken@`
 needs to be done first.
 
 ### Consider and spike various techniques to optimize the animation

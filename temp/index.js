@@ -105,7 +105,7 @@ function tesselateBox(width, height) {
 }
 
 // Start at size 7 because the box borders and minimal 1px innards cannot fit into a smaller size
-for (let index = 7; index < 8; index++) {
+for (let index = 7; index < 1000; index++) {
   try {
     const boxRgba = tesselateBox(index, index);
     const boxBmp = rgbaToBmp(index, index, boxRgba);
@@ -118,19 +118,48 @@ for (let index = 7; index < 8; index++) {
       throw new Error(`The RGBA lengths ${boxRgba.byteLength} and ${buffer.byteLength} do not match.`);
     }
 
-    print(boxRgba, index * 4);
-    for (let index = 0; index < buffer.byteLength / 4; index++) {
-      console.log(buffer.slice(index * 4, index * 4 + 4));
+    let discrepancies = [];
+    let i = 0;
+    do {
+      const j = i / 4;
+      const r = boxRgba[i];
+      if (r !== buffer[i++]) {
+        discrepancies.push(j);
+      }
+
+      const g = boxRgba[i];
+      if (g !== buffer[i++]) {
+        discrepancies.push(j);
+      }
+
+      const b = boxRgba[i];
+      if (b !== buffer[i++]) {
+        discrepancies.push(j);
+      }
+
+      const a = boxRgba[i];
+      if (a !== buffer[i++]) {
+        discrepancies.push(j);
+      }
+
+      if (a !== 255) {
+        throw new Error(`Found random alpha ${a}!`);
+      }
+    } while (i < index * index);
+
+    if (discrepancies.length > 0) {
+      throw new Error(`The buffers do not perfectly match at indices ${discrepancies}.\n${print(boxRgba, index * 4, discrepancies)}\n\n${print(buffer, index * 4, discrepancies)}`);
     }
   } catch (error) {
     console.log(index, error);
   }
 }
 
-function print(buffer, stride) {
+function print(buffer, stride, highlights) {
   let line = '';
   let i = 0;
   do {
+    const index = i / 4;
     const r = buffer[i++];
     const g = buffer[i++];
     const b = buffer[i++];
@@ -140,17 +169,18 @@ function print(buffer, stride) {
     }
 
     switch ([r, g, b].join()) {
-      case '0,0,0': line += 'K'; break;
-      case '255,255,255': line += 'W'; break;
-      case '255,0,0': line += 'R'; break;
-      case '0,255,0': line += 'G'; break;
-      case '0,0,255': line += 'B'; break;
-      default: line += '?';
+      case '0,0,0': line += highlights.includes(index) ? '[K]' : ' K '; break;
+      case '255,255,255': line += highlights.includes(index) ? '[W]' : ' W '; break;
+      case '255,0,0': line += highlights.includes(index) ? '[R]' : ' R '; break;
+      case '0,255,0': line += highlights.includes(index) ? '[G]' : ' G '; break;
+      case '0,0,255': line += highlights.includes(index) ? '[B]' : ' B '; break;
+      default: line += ' ? ';
     }
 
     if (i % stride === 0) {
-      console.log(line);
-      line = '';
+      line += '\n';
     }
   } while (i < buffer.byteLength);
+
+  return line;
 }

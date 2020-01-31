@@ -23,6 +23,7 @@
         margin: 1em;
         outline: none;
       }
+
     </style>
     <script id="demoScript" type="text/plain">
 SVG Screencast is a tool for generating animated SVG (using CSS animation)
@@ -48,7 +49,11 @@ Tom
     <script>
       let cursor = 0;
       window.addEventListener('load', () => {
-        const content = document.getElementById('demoScript').textContent;
+        const content = '\n\n' + document.getElementById('demoScript').textContent
+          // Remove leading and trailing whitespace resulting from being embedded in the script tag
+          .trim()
+          // Collapse newlines to remove formatting newlines
+          .replace(/\n([^\n])/gm, match => ' ' + match[1]) + '\n';
 
         const showcaseTextArea = document.getElementById('showcaseTextArea');
         showcaseTextArea.focus();

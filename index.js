@@ -9,7 +9,7 @@ const rgbaToBmp = require('./test/rgbaToBmp');
 process.once('unhandledRejection', error => { throw error; });
 
 app.once('ready', () => {
-  const window = new BrowserWindow({ width: 600, height: 500 });
+  const window = new BrowserWindow({ width: 600, height: 400 });
   window.loadFile('demo/index.html');
 
   /** @type {Fluff} */
@@ -45,11 +45,13 @@ app.once('ready', () => {
           const buffer1 = lastScreenshot.getBitmap();
           await fs.writeFile(`test/broken@${frame}/1.bmp`, rgbaToBmp(width1, height1, buffer1));
           await fs.writeFile(`test/broken@${frame}/1.png`, lastScreenshot.toPNG());
+          await fs.writeFile(`test/broken@${frame}/1.rgba`, lastScreenshot.getBitmap());
           const { width: width2, height: height2 } = screenshot.getSize();
           const buffer2 = screenshot.getBitmap();
           await fs.writeFile(`test/broken@${frame}/2.bmp`, rgbaToBmp(width2, height2, buffer2));
           await fs.writeFile(`test/broken@${frame}/2.png`, screenshot.toPNG());
-          await fs.writeJson(`test/broken@${frame}/expected.json`, [], { spaces: 2 });
+          await fs.writeFile(`test/broken@${frame}/2.rgba`, screenshot.getBitmap());
+          await fs.writeJson(`test/broken@${frame}/expected.json`, regions, { spaces: 2 });
         }
       }
 
