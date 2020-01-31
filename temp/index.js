@@ -104,7 +104,8 @@ function tesselateBox(width, height) {
   return rgba;
 }
 
-for (let index = 0; index < 100; index++) {
+// Start at size 7 because the box borders and minimal 1px innards cannot fit into a smaller size
+for (let index = 7; index < 8; index++) {
   try {
     const boxRgba = tesselateBox(index, index);
     const boxBmp = rgbaToBmp(index, index, boxRgba);
@@ -117,13 +118,39 @@ for (let index = 0; index < 100; index++) {
       throw new Error(`The RGBA lengths ${boxRgba.byteLength} and ${buffer.byteLength} do not match.`);
     }
 
-    for (let index = 0; index < boxRgba.byteLength; index++) {
-      if (boxRgba[index] !== buffer[index]) {
-        throw new Error(`Byte mismatch @${index}: ${boxRgba[index]} vs ${buffer[index]}.`);
-      }
+    print(boxRgba, index * 4);
+    for (let index = 0; index < buffer.byteLength / 4; index++) {
+      console.log(buffer.slice(index * 4, index * 4 + 4));
     }
   } catch (error) {
-    delete error.stack;
     console.log(index, error);
   }
+}
+
+function print(buffer, stride) {
+  let line = '';
+  let i = 0;
+  do {
+    const r = buffer[i++];
+    const g = buffer[i++];
+    const b = buffer[i++];
+    const a = buffer[i++];
+    if (a !== 255) {
+      throw new Error(`Found random alpha ${a}!`);
+    }
+
+    switch ([r, g, b].join()) {
+      case '0,0,0': line += 'K'; break;
+      case '255,255,255': line += 'W'; break;
+      case '255,0,0': line += 'R'; break;
+      case '0,255,0': line += 'G'; break;
+      case '0,0,255': line += 'B'; break;
+      default: line += '?';
+    }
+
+    if (i % stride === 0) {
+      console.log(line);
+      line = '';
+    }
+  } while (i < buffer.byteLength);
 }

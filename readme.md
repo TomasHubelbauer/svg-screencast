@@ -26,13 +26,14 @@ an animation, a screencast of the Electron window, is created.
 
 ## To-Do
 
+### Fix `bmpToRgba` not taking stride into an account producing bad RGBA
+
+This might be causing the `should-drop` test to fail and is also
+causing the current failures in `temp`.
+
 ### Fix `rgbaToBmp` writing skewed images in `temp`
 
 This probably also causes skewed images in `broken@` test cases.
-
-### Fix `bmpToRgba` not taking stride into an account
-
-This might be causing the `should-drop` test to fail.
 
 ### Fix the issue with the diff going crazy (returning a lot of regions) when scrolled
 
