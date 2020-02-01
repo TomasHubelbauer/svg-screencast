@@ -26,6 +26,15 @@ an animation, a screencast of the Electron window, is created.
 
 ## To-Do
 
+### Improve the regionization algorithm to merge overlapping regions
+
+I'm not exactly sure how this happens and perhaps it should be left
+to the optimization phase instead of special-cased in the regionizer,
+but sometimes a wide region will close and a tall region will start
+above it which as it grows vertically overlaps the wide region. At
+this point we could merge them pro-actively. Doing it in the optimization
+pass might increase performance though so maybe this task is redudant.
+
 ### Replace `img`s in the HTML version with `div`s with CSS background
 
 Do that and then in the `frameP` display the individual patches inline
