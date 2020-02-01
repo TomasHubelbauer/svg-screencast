@@ -26,6 +26,13 @@ an animation, a screencast of the Electron window, is created.
 
 ## To-Do
 
+### Replace `img`s in the HTML version with `div`s with CSS background
+
+Do that and then in the `frameP` display the individual patches inline
+in addition to them being displayed over the background at the region
+locations. This will aid debugging as the frames will appear individually
+as well as in context.
+
 ### Add a playback UI for the HTML version
 
 Playback should proceed at the speed based on the stamp as opposed to the
