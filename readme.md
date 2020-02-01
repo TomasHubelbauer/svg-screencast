@@ -1,6 +1,6 @@
 # SVG Screencast
 
-[**DEMO**](https://tomashubelbauer.github.io/svg-screencast/screencast.svg.html)
+[**DEMO**](https://tomashubelbauer.github.io/svg-screencast/demo/screencast.html)
 
 ![](demo/screencast.svg)
 
@@ -31,23 +31,7 @@ an animation, a screencast of the Electron window, is created.
 Playback should proceed at the speed based on the stamp as opposed to the
 manual movement of the slider.
 
-### Highlight the last patch visible in the HTML version to aid debugging
-
-Probably using an `outline` or a `drop-shadow`.
-
-### Fix the issue with the diff going crazy (returning a lot of regions) when scrolled
-
-Not only the moment the scroll bar appears, but each subsequent
-screenshot after the first scroll generates more and more regions
-on Windows, on macOS it correctly generates a bunch of regions only
-the moment the scroll happens, but recovers afterwards, although it
-crashes at the very end anyway.
-
-BMPs of the last good screenshot and the first bad screenshot saved
-into `test/broken`, but the task to fix skewed results in `broken@`
-needs to be done first.
-
-### Consider and spike various techniques to optimize the animation
+### Spike various techniques to optimize the regionization
 
 - Merge regions in case the new single, large patch works out to a smaller size
   than the two individual patches, do this recursively while this holds true.
@@ -85,7 +69,7 @@ a two step animation for each frame.
 
 ### Add an option to flip back to the first frame at the end of the video
 
-Do this by creating a CSS rule targetting all images with IDs and hiding them
+Do this by creating a CSS rule targetting all images with classes and hiding them
 using an animation.
 
 ### Consider optionally adding a scrubbar or another animation length indicator

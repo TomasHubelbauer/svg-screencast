@@ -20,7 +20,7 @@ module.exports = class Screencast {
       const { width, height } = this.screenshot.getSize();
       const dataUrl = this.screenshot.toDataURL();
       await fs.writeFile(this.name + this.fluff.extension, this.fluff.prolog(this.name, width, height, dataUrl));
-      return;
+      return { frame: this.frame, regions: [] };
     }
 
     const { width, height } = this.screenshot.getSize();
@@ -36,14 +36,13 @@ module.exports = class Screencast {
     this.screenshot = screenshot;
 
     const stamp = ~~(new Date() - this.stamp);
-    for (const region of regions) {
-      const crop = this.screenshot.crop(region);
-      const dataUrl = crop.toDataURL();
-      this.frame++;
-      await fs.appendFile(this.name + this.fluff.extension, this.fluff.frame(this.frame, stamp, region, dataUrl));
-    }
 
-    return regions;
+    /** @type {Patch[]} */
+    const patches = regions.map(region => ({ region, dataUrl: this.screenshot.crop(region).toDataURL() }));
+    await fs.appendFile(this.name + this.fluff.extension, this.fluff.frame(this.frame, stamp, patches));
+
+    this.frame++;
+    return { frame: this.frame, regions };
   }
 
   async seal() {

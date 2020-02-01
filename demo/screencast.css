@@ -1,0 +1,22 @@
+body {
+  margin: 0;
+}
+
+input {
+  display: block;
+  margin: auto;
+  width: 100%;
+}
+
+img {
+  display: none;
+  position: absolute;
+}
+
+img.cast {
+  display: initial;
+}
+
+img.last {
+  outline: 1px solid black;
+}
