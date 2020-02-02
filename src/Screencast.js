@@ -29,7 +29,7 @@ module.exports = class Screencast {
       throw new Error(`Screenshot sizes differ: ${width}×${height} vs ${screenshotSize.width}×${screenshotSize.height}`);
     }
 
-    const regions = optimize(...regionize(width, height, this.screenshot.getBitmap(), screenshot.getBitmap()));
+    const regions = optimize(width, height, ...regionize(width, height, this.screenshot.getBitmap(), screenshot.getBitmap()));
 
     // Dispose the existing screenshot just in case (hopefully it gets GC'd okay)
     delete this.screenshot;

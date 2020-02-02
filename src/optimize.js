@@ -1,7 +1,14 @@
 require('./types');
 
 // TODO: Prototype the various optimizations here and set up benchmarks for them
-module.exports = function optimize(/** @type {Region[]} */ ...regions) {
+module.exports = function optimize(/** @type {number} */ width, /** @type {number} */ height, /** @type {Region[]} */ ...regions) {
+  const screenshotArea = width * height;
+  const regionsArea = regions.reduce((a, c) => a + c.width * c.height, 0);
+  if (regionsArea > screenshotArea * .25) {
+    console.log('Inserted an intra-frame');
+    return [{ x: 0, y: 0, width, height }];
+  }
+
   // TODO: Fix the below optimization borking everything
   return regions;
 

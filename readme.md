@@ -26,6 +26,12 @@ an animation, a screencast of the Electron window, is created.
 
 ## To-Do
 
+### Extract the code out to a library and allow feeding it frames
+
+Preserve the ability to feed it Electon NativeImage instances and extend it to
+allow also passing in blobs so that it can be used in both Node and the browser,
+where it might be useful for generating animations in the browser.
+
 ### Spike various techniques to optimize the regionization in `optimize.js`
 
 - Merge regions in case the new single, large patch works out to a smaller size
@@ -84,12 +90,6 @@ state.
 
 Display keys being pressed and shortcuts being used like some screenrecording
 software does.
-
-### Extract the code out to a library and allow feeding it frames
-
-Preserve the ability to feed it Electon NativeImage instances and extend it to
-allow also passing in blobs so that it can be used in both Node and the browser,
-where it might be useful for generating animations in the browser.
 
 ### Build a full-screen recorder by using the platform APIs to take a screenshot
 
