@@ -69,15 +69,19 @@ electron.app.once('ready', async () => {
 Would probably have to play around with the animation delay and duration or use
 a two step animation for each frame.
 
-#### Add an option to go back to the poster frame at the end of the playback
-
-Do this by creating a CSS rule targetting all images with classes and hiding
-them using a CSS animation.
-
 #### Consider optionally adding a scrubbar or another animation length indicator
 
-Maybe with a bit of JavaScript it could be possible to make it appear only on
-mouse hover.
+It seems like JavaScript doesn't run in SVGs which are embedded using the `img`
+element: http://thenewcode.com/1094/Using-JavaScript-in-SVG
+
+I also tried using CSS `:hover` pseudoselector and it only seems to work when
+accessed directly and not embedded in `img`, too, at least as per the VS Code
+MarkDown preview. Maybe it is worth trying on GitHub.
+
+However it seems likely that showing and hiding the scrubbar based on mouse
+interaction will be a no-go so we will need to go with something super low-key,
+like a muted bar at the bottom edge or something, to not take away from the
+content.
 
 #### Capture the cursor and animate it in the screencast as a standalone image
 
@@ -110,3 +114,6 @@ fragile.
 #### Set up a GitHub Actions workflow to run the tests in on every new commit
 
 #### See if it would be possible to use JavaScript to restart the animation
+
+It seems like JavaScript doesn't run in SVGs which are embedded using the `img`
+element: http://thenewcode.com/1094/Using-JavaScript-in-SVG
