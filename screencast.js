@@ -25,7 +25,7 @@ export default async function screencast(/** @type {string} */ path, /** @type {
 
       const { width, height, format } = metadata;
       stream.write(`<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">\n`);
-      stream.write(`<image width="${width}" height="${height}" href="data:image/${format};base64,${screenshot.buffer.toString('base64')}"></image>\n`);
+      stream.write(`<image width="${width}" height="${height}" href="data:image/${format};base64,${screenshot.buffer.toString('base64')}"/>\n`);
       stream.write(`<style>\nimage[class] { visibility: hidden; }\n@keyframes _ { to { visibility: visible; } }\n</style>\n`);
 
       _buffer = await data.raw().toBuffer();
@@ -50,7 +50,7 @@ export default async function screencast(/** @type {string} */ path, /** @type {
 
       for (const region of regions) {
         const buffer = await data.extract(region).png().toBuffer();
-        stream.write(`<image class="_${frame}" x="${region.left}" y="${region.top}" width="${region.width}" height="${region.height}" href="data:image/${metadata.format};base64,${buffer.toString('base64')}"></image>\n`);
+        stream.write(`<image class="_${frame}" x="${region.left}" y="${region.top}" width="${region.width}" height="${region.height}" href="data:image/${metadata.format};base64,${buffer.toString('base64')}"/>\n`);
       }
     }
 
