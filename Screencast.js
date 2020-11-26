@@ -1,11 +1,11 @@
-const fs = require('fs-extra');
-const regionize = require('./regionize');
-const optimize = require('./optimize');
+import fs from 'fs';
+import regionize from './regionize.js';
+import optimize from './optimize.js';
 
 /** @type {Fluff} */
-const svgFluff = require('./svgFluff');
+import svgFluff from './svgFluff';
 
-module.exports = class Screencast {
+export default class Screencast {
   constructor(/** @type {string} */ name, /** @type {Fluff} */ fluff = svgFluff) {
     this.name = name;
     this.fluff = fluff;

@@ -1,9 +1,9 @@
-require('../src/types');
-const regionize = require('../src/regionize');
-const bmpToRgba = require('./bmpToRgba');
-const klaw = require('klaw');
-const path = require('path');
-const fs = require('fs-extra');
+import '../src/types.js';
+import regionize from '../src/regionize.js';
+import bmpToRgba from './bmpToRgba.js';
+import path from 'path';
+import fs from 'fs';
+import url from 'url';
 
 function test(/** @type {string} */ title, /** @type {number} */ width, /** @type {number} */ height, /** @type {Buffer} */ buffer1, /** @type {Buffer} */ buffer2, /** @type {Region[]} */ ...regions) {
   const _regions = [];
@@ -50,40 +50,24 @@ function test(/** @type {string} */ title, /** @type {number} */ width, /** @typ
 }
 
 void async function () {
-  for await (const item of klaw(__dirname, { depthLimit: 0 })) {
-    if (!item.stats.isDirectory()) {
+  const testDirectoryPath = path.dirname(url.fileURLToPath(import.meta.url));
+  for (const item of await fs.promises.readdir(testDirectoryPath, { withFileTypes: true })) {
+    if (!item.isDirectory() || item.name === '.git') {
       continue;
     }
 
-    const title = path.relative(__dirname, item.path);
+    const path1Bmp = path.join(testDirectoryPath, item.name, '1.bmp');
+    const path2Bmp = path.join(testDirectoryPath, item.name, '2.bmp');
+    const pathExpectedJson = path.join(testDirectoryPath, item.name, 'expected.json');
 
-    if (!title) {
-      continue;
-    }
-
-    const path1Bmp = path.join(item.path, '1.bmp');
-    if (!await fs.pathExists(path1Bmp)) {
-      throw new Error('Did not find the initial frame BMP file of the test case.' + title);
-    }
-
-    const path2Bmp = path.join(item.path, '2.bmp');
-    if (!await fs.pathExists(path2Bmp)) {
-      throw new Error('Did not find the changed frame BMP file of the test case.' + title);
-    }
-
-    const pathExpectedJson = path.join(item.path, 'expected.json');
-    if (!await fs.pathExists(pathExpectedJson)) {
-      throw new Error('Did not find the expected regions JSON file of the test case ' + title);
-    }
-
-    const { width, height, buffer: buffer1 } = bmpToRgba(await fs.readFile(path1Bmp));
-    const { width: checkWidth, height: checkHeight, buffer: buffer2 } = bmpToRgba(await fs.readFile(path2Bmp));
+    const { width, height, buffer } = bmpToRgba(await fs.promises.readFile(path1Bmp));
+    const { width: checkWidth, height: checkHeight, buffer: checkBuffer } = bmpToRgba(await fs.promises.readFile(path2Bmp));
     if (width !== checkWidth || height !== checkHeight) {
       throw new Error('Image sizes differ!');
     }
 
-    const regions = await fs.readJson(pathExpectedJson);
+    const regions = JSON.parse(await fs.promises.readFile(pathExpectedJson));
 
-    test(title, width, height, buffer1, buffer2, ...regions);
+    test(item.name, width, height, buffer, checkBuffer, ...regions);
   }
 }()

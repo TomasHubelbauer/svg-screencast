@@ -1,38 +1,29 @@
-# SVG Screencast
+# [SVG Screencast](https://tomashubelbauer.github.io/svg-screencast)
 
-[**DEMO**](https://tomashubelbauer.github.io/svg-screencast/demo/screencast.html)
-
-![](demo/screencast.svg)
+![](demo.svg)
 
 SVG Screencast is a project which generates animated SVG files by using CSS
-animations to reveal elements.
+animations to reveal elements. Feed it an array of screenshots and stamps and it
+will determine the changes between frames and output an animated SVG screencast.
 
-In its current form, it is demonstrated using an Electron window, which is
-continuously screenshot and the last and next screenshots are compared to find
-the region of change, which is then cropped out of the screenshot and used as a
-patch for the background. By revealing the patches and timing them accodingly,
-an animation, a screencast of the Electron window, is created.
+## Development
 
-## Running
+To generate `demo.svg`, run `npx electron .` in `demo` to capture the individual
+screenshots and then `npm start` (`node .`) to produce the screencast from them.
 
-`npm start` (`electron .`) implicitly renders an SVG screencast to `demo/screencast.svg`
+To run tests, run `npm test` (`cd test && node .`).
 
-- `npm start svg` explicitly renders an SVG screencast to `demo/screencast.svg`
-- `npm start html` explicitly renders an HTML screencast to `demo/screencast.html`
+### To-Do
 
-## Testing
+#### Screenshot the Electron application externally to not have to depend on it
 
-`npm test` (`node test`)
-
-## To-Do
-
-### Extract the code out to a library and allow feeding it frames
+#### Extract the code out to a library and allow feeding it frames
 
 Preserve the ability to feed it Electon NativeImage instances and extend it to
 allow also passing in blobs so that it can be used in both Node and the browser,
 where it might be useful for generating animations in the browser.
 
-### Spike various techniques to optimize the regionization in `optimize.js`
+#### Spike various techniques to optimize the regionization in `optimize.js`
 
 - Merge regions in case the new single, large patch works out to a smaller size
   than the two individual patches, do this recursively while this holds true.
@@ -59,19 +50,19 @@ where it might be useful for generating animations in the browser.
   where the whole line could be a single patch and letters revealed by enlarging
   the crop window.
 
-### See if looping would be possible to do in the CSS animation
+#### See if looping would be possible to do in the CSS animation
 
 Would probably have to play around with the animation delay and duration or use
 a two step animation for each frame.
 
-### Add an option to flip back to the first frame at the end of the video
+#### Add an option to flip back to the first frame at the end of the video
 
 Do this by creating a CSS rule targetting all images with classes and hiding them
 using an animation.
 
-### Consider optionally adding a scrubbar or another animation length indicator
+#### Consider optionally adding a scrubbar or another animation length indicator
 
-### Capture the cursor and include it in the animation as a standalone image
+#### Capture the cursor and include it in the animation as a standalone image
 
 Move the image using CSS animations.
 Use `electron.screen.getCursorScreenPoint` and subtract the window position from
@@ -86,12 +77,12 @@ hook to the client page and relay the cursor state information to the main
 process assuming the client page's JavaScript can tell what's the current cursor
 state.
 
-### Display keystrokes in the animation optionally
+#### Display keystrokes in the animation optionally
 
 Display keys being pressed and shortcuts being used like some screenrecording
 software does.
 
-### Build a full-screen recorder by using the platform APIs to take a screenshot
+#### Build a full-screen recorder by using the platform APIs to take a screenshot
 
 I tried to use FFI and GYP, but it's so stupidly non-straightforward to install
 that I have given up on it. It is not worth figuring it out, because it is too

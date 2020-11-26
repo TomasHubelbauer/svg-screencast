@@ -1,6 +1,6 @@
-const calculateLine = require('./calculateLine');
+import calculateLine from './calculateLine.js';
 
-module.exports = function bmpTorgba(/** @type {Buffer} */ bmpBuffer) {
+export default function bmpTorgba(/** @type {Buffer} */ bmpBuffer) {
   // Check the BMP header
   if (bmpBuffer[0] !== 0x42 || bmpBuffer[1] !== 0x4d) {
     throw new Error('The BMP header `BM` was not found!');

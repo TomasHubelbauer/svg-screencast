@@ -1,7 +1,7 @@
-require('./types');
+import './types.js';
 
 /** @type {Fluff} */
-const svgFluff = {
+export default {
   extension: '.svg',
   prolog: (_name, width, height, dataUrl) => [
     `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">`,
@@ -17,5 +17,3 @@ const svgFluff = {
   ].join('\n'),
   epilog: () => '\n</svg>',
 };
-
-module.exports = svgFluff;

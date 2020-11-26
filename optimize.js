@@ -1,7 +1,7 @@
-require('./types');
+import './types.js';
 
 // TODO: Prototype the various optimizations here and set up benchmarks for them
-module.exports = function optimize(/** @type {number} */ width, /** @type {number} */ height, /** @type {Region[]} */ ...regions) {
+export default function optimize(/** @type {number} */ width, /** @type {number} */ height, /** @type {Region[]} */ ...regions) {
   const screenshotArea = width * height;
   const regionsArea = regions.reduce((a, c) => a + c.width * c.height, 0);
   if (regionsArea > screenshotArea * .25) {

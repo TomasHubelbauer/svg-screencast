@@ -1,6 +1,6 @@
-require('./types');
+import './types.js';
 
-module.exports = function* regionize(/** @type {number} */ width, /** @type {number} */ height, /** @type {Buffer} */ buffer1, /** @type {Buffer} */ buffer2) {
+export default function* regionize(/** @type {number} */ width, /** @type {number} */ height, /** @type {Buffer} */ buffer1, /** @type {Buffer} */ buffer2) {
   const length = width * height * 4;
   if (buffer1.byteLength !== length || buffer2.byteLength !== length) {
     throw new Error(`The buffers were expected to be of ${length} bytes but were ${buffer1.byteLength} and ${buffer2.byteLength} respectively.`);
