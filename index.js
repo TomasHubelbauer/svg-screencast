@@ -3,7 +3,7 @@ import path from 'path';
 import screencast from './screencast.js';
 
 void async function () {
-  await screencast('demo.svg', stream());
+  await screencast('tool/demo.svg', stream());
 }()
 
 async function* stream() {

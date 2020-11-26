@@ -1,6 +1,6 @@
 # [SVG Screencast](https://tomashubelbauer.github.io/svg-screencast)
 
-![](demo.svg)
+![](tool/demo.svg)
 
 SVG Screencast is a project which generates animated SVG files by using CSS
 animations to reveal elements. Feed it an array of screenshots and stamps and it
@@ -108,3 +108,5 @@ fragile.
 #### Rewrite the tests and make them work again
 
 #### Set up a GitHub Actions workflow to run the tests in on every new commit
+
+#### See if it would be possible to use JavaScript to restart the animation
