@@ -1,6 +1,6 @@
 # [SVG Screencast](https://tomashubelbauer.github.io/svg-screencast)
 
-![](tool/demo.svg)
+![](docs/demo.svg)
 
 SVG Screencast is a project which generates animated SVG files by using CSS
 animations to reveal elements. Feed it an array of screenshots and stamps and it
