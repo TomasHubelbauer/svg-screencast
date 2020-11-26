@@ -6,6 +6,25 @@ SVG Screencast is a project which generates animated SVG files by using CSS
 animations to reveal elements. Feed it an array of screenshots and stamps and it
 will determine the changes between frames and output an animated SVG screencast.
 
+## Installation & Usage
+
+Not ready for general use yet, if interested, check out [Development] below.
+
+[Development]: #development
+
+## Features
+
+- Allows accepting screenshots either ahead of time (bulk) or streamed real-time
+- Updates the changed regions only (primitive pixel-diff algorithm as of now)
+- Produces SVGs playable in MarkDown/SVG preview on GitHub and in VS Code
+- Uses standard SVG and CSS features resulting in great support (even Safari)
+
+## Limitations
+
+- Does not produce minimal file sizes yet, a smarter algorithm is in the works
+- Does not have interactivity of any kind, SVG used thru `img` just can't do it
+- Does not show the mouse cursor at the moment (a solution is in the works tho)
+
 ## Development
 
 To generate `demo.svg`, run `npx electron .` in `demo` to capture the individual
@@ -66,8 +85,17 @@ electron.app.once('ready', async () => {
 
 #### See if playback looping would be possible to do in the CSS animation
 
-Would probably have to play around with the animation delay and duration or use
-a two step animation for each frame.
+I think this should be doable by making all animation durations equal to the
+overall duration of the screencast and then calculating a keyframe percentage
+that corresponds to the desired duration and animating from hidden, to visible
+(at the percentage keyframe) to hidden again. If this rule was played in a loop
+(using `infinite`), it should theoretically reveal everything, then hide it all
+again and then pick up again.
+
+The naive implementation of this would be to ditch streaming otherwise we could
+not compute the ratio of the desired and total duration. Maybe putting all the
+frame styles at the end when the total duration is known could be a solution for
+looping which preserves the streaming API?
 
 #### Consider optionally adding a scrubbar or another animation length indicator
 
@@ -83,33 +111,34 @@ interaction will be a no-go so we will need to go with something super low-key,
 like a muted bar at the bottom edge or something, to not take away from the
 content.
 
-#### Capture the cursor and animate it in the screencast as a standalone image
+#### Consider adding support for cursor, keystrokes and annotations
 
-Move the image using CSS animations.
-Use `electron.screen.getCursorScreenPoint` and subtract the window position from
-it. Introduce a new method `point` distinct from `cast` which emits the `style`
-element for moving the cursor. If the cursor tracking and rendering was enabled,
-on the first frame, also emit the initial cursor `image` element and hide the
-cursor off screen before it is first moved to the viewport.
+These would be extra elements intertwined with the frames. The cursor would be a
+standalone image whose coordinates would be obtained using `electron.screen`'s
+method `getCursorScreenPoint` adjusted to the window coordinate system. Cursor
+icons would not be supported (unless we want to query those in Electron and save
+that information, too, in which case they could be and quite trivially, too.).
 
-This will not capture various different cursor states, to have that, we'd either
-need to query the system to find the current cursor style or add a `mouseMove`
-hook to the client page and relay the cursor state information to the main
-process assuming the client page's JavaScript can tell what's the current cursor
-state.
+Keystrokes would be just a `rect` and `text` combo which would pop up at a pre-
+determined location and disappear once replaced with another keystroke or once
+expired, whichever comes first. A stack of last keystrokes could be kept to make
+them available for a guaranteed interval in case of fast typing / shortcut use.
 
-#### Display keystrokes in the screencast optionally
-
-Display keys being pressed and shortcuts being used like some screenrecording
-software does.
+This whole problem generalizes to intertwining custom elements with the frames,
+the approaches needed to support cursor and keystrokes are probable capable such
+that they could also support custom annotations of any kind, so look into that.
 
 #### Build a full-screen recorder by using the platform screenshot capture API
 
 I tried to use FFI and GYP, but it's so stupidly non-straightforward to install
 that I have given up on it. It is not worth figuring it out, because it is too
-fragile.
+fragile. This functionality can already be supported by just loading up a bunch
+of screenshots, but I wonder what could be done to make it also usable in real-
+time screenshot streaming.
 
 #### Rewrite the tests and make them work again
+
+This time with PNG samples.
 
 #### Set up a GitHub Actions workflow to run the tests in on every new commit
 
