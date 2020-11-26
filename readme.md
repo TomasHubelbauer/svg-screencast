@@ -15,13 +15,30 @@ To run tests, run `npm test` (`cd test && node .`).
 
 ### To-Do
 
-#### Screenshot the Electron application externally to not have to depend on it
+#### Demonstrate real-time usage once Electron supports ESM modules
 
-#### Extract the code out to a library and allow feeding it frames
+https://github.com/electron/electron/issues/21457
 
-Preserve the ability to feed it Electon NativeImage instances and extend it to
-allow also passing in blobs so that it can be used in both Node and the browser,
-where it might be useful for generating animations in the browser.
+```js
+import electron from 'electron';
+import screencast from '../screencast.js';
+
+electron.app.once('ready', async () => {
+  const window = new electron.BrowserWindow({ width: 600, height: 400 });
+  window.loadFile('./index.html');
+
+  async function* screenshot() {
+    while (!window.isDestroyed()) {
+      const nativeImage = await window.capturePage();
+      yield { stamp: new Date(), buffer: nativeImage.toPNG() };
+    }
+  }
+
+  window.webContents.once('dom-ready', async () => {
+    await screencast('../realtime-demo.svg', screenshot());
+  });
+});
+```
 
 #### Spike various techniques to optimize the regionization in `optimize.js`
 
@@ -37,9 +54,6 @@ where it might be useful for generating animations in the browser.
   of the single combined patch is smaller than the two individual patches.
 - Avoid optimizing frames with a small number of regions (1, 2) as it is not
   likely to be worth it.
-- Buffer the incoming screenshots either in memory or on disk (or switch based
-  on some threshold) and render the animation in parallel so that the rendering
-  lags do not cause stutter in the capturing loop.
 - Detect scrolls and moves of regions and use CSS animations for sliding a crop
   across the patch which then becomes a texture or moving the patch in case of
   a translation motion. Scaling and rotation are likely not worth it. In case of
@@ -50,19 +64,22 @@ where it might be useful for generating animations in the browser.
   where the whole line could be a single patch and letters revealed by enlarging
   the crop window.
 
-#### See if looping would be possible to do in the CSS animation
+#### See if playback looping would be possible to do in the CSS animation
 
 Would probably have to play around with the animation delay and duration or use
 a two step animation for each frame.
 
-#### Add an option to flip back to the first frame at the end of the video
+#### Add an option to go back to the poster frame at the end of the playback
 
-Do this by creating a CSS rule targetting all images with classes and hiding them
-using an animation.
+Do this by creating a CSS rule targetting all images with classes and hiding
+them using a CSS animation.
 
 #### Consider optionally adding a scrubbar or another animation length indicator
 
-#### Capture the cursor and include it in the animation as a standalone image
+Maybe with a bit of JavaScript it could be possible to make it appear only on
+mouse hover.
+
+#### Capture the cursor and animate it in the screencast as a standalone image
 
 Move the image using CSS animations.
 Use `electron.screen.getCursorScreenPoint` and subtract the window position from
@@ -77,22 +94,17 @@ hook to the client page and relay the cursor state information to the main
 process assuming the client page's JavaScript can tell what's the current cursor
 state.
 
-#### Display keystrokes in the animation optionally
+#### Display keystrokes in the screencast optionally
 
 Display keys being pressed and shortcuts being used like some screenrecording
 software does.
 
-#### Build a full-screen recorder by using the platform APIs to take a screenshot
+#### Build a full-screen recorder by using the platform screenshot capture API
 
 I tried to use FFI and GYP, but it's so stupidly non-straightforward to install
 that I have given up on it. It is not worth figuring it out, because it is too
 fragile.
 
-I also tried using `dotnet script` and do the screnshooting logic in C#, but
-Omnisharp is a pain in the ass and that's not worth figuring out either.
+#### Rewrite the tests and make them work again
 
-It will probably be best to write this directly this program in C or Rust and
-send the frames to the JS library.
-
-The library itself will remain written in JavaScript so that it can be used in
-CI/CD scenarios to record Electron UI tests etc.
+#### Set up a GitHub Actions workflow to run the tests in on every new commit

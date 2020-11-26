@@ -5,5 +5,8 @@
   "scripts": {
     "start": "node .",
     "test": "cd test && node ."
+  },
+  "dependencies": {
+    "sharp": "^0.26.3"
   }
 }

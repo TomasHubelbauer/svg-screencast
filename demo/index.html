@@ -23,60 +23,32 @@
         margin: 1em;
         outline: none;
       }
-
     </style>
-    <script id="demoScript" type="text/plain">
-SVG Screencast is a tool for generating animated SVG (using CSS animation)
-screencasts.
-
-The tool is fed a series of screenshots with timestamps and generates a single
-self-contained animated SVG file
-
-The screenshots are compared frame by frame to find only the changed region and
-reuse the unchanged background resulting in small file sizes.
-
-I have not compared SVG Screenshot to animated GIFs in terms of size (also size
-when GZIP'd), but it provides at least two benefits over GIFs: support for
-transparency and full color support.
-
-I will provide comparisons with GIF and APNG when I've made some.
-
-I hope you'll find this project useful. I have many ideas for improvement and
-will be glad to hear your feedback or review your contribution!
-
-Tom
-    </script>
     <script>
       let cursor = 0;
-      window.addEventListener('load', () => {
-        const content = '\n\n' + document.getElementById('demoScript').textContent
-          // Remove leading and trailing whitespace resulting from being embedded in the script tag
-          .trim()
-          // Collapse newlines to remove formatting newlines
-          .replace(/\n([^\n])/gm, match => ' ' + match[1]) + '\n';
+      window.addEventListener('load', async () => {
+        const content = `SVG Screencast\n\nThis is an SVG image with CSS animations revealing damage region change patches producing an animation!\n\nTomas Hubelbauer\n`;
 
         const showcaseTextArea = document.getElementById('showcaseTextArea');
         showcaseTextArea.focus();
         showcaseTextArea.select();
 
-        function tick() {
+        do {
           showcaseTextArea.textContent += content[cursor++];
           showcaseTextArea.setSelectionRange(showcaseTextArea.textContent.length - 1, showcaseTextArea.textContent.length);
-          showcaseTextArea.scrollTop = showcaseTextArea.scrollHeight;
-          if (cursor < content.length) {
-            window.setTimeout(tick, Math.random() + 50);
-          }
-          else {
-            // Close after a delay to make sure the final state is screenshot before the window closes
-            window.setTimeout(window.close, 500);
-          }
-        }
 
-        tick();
+          // Wait a random about of time between 10 and 30 ms for fluidity
+          await new Promise(resolve => window.setTimeout(resolve, 10 + Math.random() * 20));
+        }
+        while (cursor < content.length);
+
+        // Close after a delay to make sure to capture the final state fully
+        await new Promise(resolve => window.setTimeout(resolve, 25));
+        window.close();
       });
     </script>
   </head>
   <body>
-    <textarea id="showcaseTextArea">SVG Screencast</textarea>
+    <textarea id="showcaseTextArea"></textarea>
   </body>
 </html>

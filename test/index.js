@@ -1,6 +1,3 @@
-import '../src/types.js';
-import regionize from '../src/regionize.js';
-import bmpToRgba from './bmpToRgba.js';
 import path from 'path';
 import fs from 'fs';
 import url from 'url';
