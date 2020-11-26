@@ -4,51 +4,95 @@
     <meta charset="utf-8" />
     <title>SVG Screencast</title>
     <style>
-      html {
-        height: 100%;
-      }
-
       body {
         /* Prevent transparent screenshot */
         background: white;
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-        margin: 0;
+        font: normal 12pt sans-serif;
+        padding-bottom: 1em;
       }
 
-      textarea {
-        flex: 1;
-        font: normal 12pt monospace;
-        margin: 1em;
-        outline: none;
+      h1 {
+        -webkit-text-stroke-width: 1px;
+        -webkit-text-stroke-color: rgba(0, 0, 0, .5);
+      }
+
+      p {
+        color: rgba(0, 0, 0, .85);
+        text-shadow: 0 0 1px rgba(0, 0, 0, .25);
+      }
+
+      a {
+        color: black;
+        font-weight: bold;
       }
     </style>
     <script>
-      let cursor = 0;
+      /** @type {HTMLElement} */
+      let cursor;
+      const script = [
+        () => cursor = document.createElement('h1'),
+        () => document.body.append(cursor),
+        ...[...'SVG Screencast ❤'].map(char => () => cursor.append(char)),
+
+        () => document.body.style.background = 'whitesmoke',
+        () => cursor.style.display = 'inline',
+        () => cursor.style.background = 'linear-gradient(to right, red, orange, yellow, green, cyan, blue, indigo, violet)',
+        () => cursor.style.webkitBackgroundClip = 'text',
+        () => cursor.style.webkitTextFillColor = 'transparent',
+
+        () => cursor = document.createElement('p'),
+        () => document.body.append(cursor),
+        ...[...'This image is an animated SVG file.'].map(char => () => cursor.append(char)),
+
+        () => cursor = document.createElement('p'),
+        () => document.body.append(cursor),
+        ...[...'It contains a poster image and an array of patch images which are revealed one by one producing motion. ✨ The images are screenshots recorded ahead of time (real-time is also supported). 🔴'].map(char => () => cursor.append(char)),
+
+        () => cursor = document.createElement('p'),
+        () => document.body.append(cursor),
+        ...[...'The idea is to replace GIF for screencast animations. These SVGs are much higher quality! 💪 And probably lower in size than an equivalent GIF. 👾'].map(char => () => cursor.append(char)),
+
+        () => cursor = document.createElement('p'),
+        () => document.body.append(cursor),
+        ...[...'This tool is a work in progress. ⏳ Check the readme to see the roadmap. 🛣'].map(char => () => cursor.append(char)),
+
+        () => cursor = document.createElement('p'),
+        () => document.body.append(cursor),
+        ...[...'Made by '].map(char => () => cursor.append(char)),
+
+        () => cursor.append(document.createElement('a')),
+        () => cursor = cursor.lastChild,
+        ...[...'Tomas Hubelbauer'].map(char => () => cursor.append(char)),
+        () => cursor.href = 'https://hubelbauer.net',
+
+        () => cursor.insertAdjacentElement('beforebegin', document.createElement('img')),
+        () => cursor = cursor.previousSibling,
+        () => cursor.src = 'me.jpg',
+        () => cursor.style.height = '1em',
+        () => cursor.style.marginRight = '.5ex',
+
+        () => cursor = cursor.nextSibling,
+        () => cursor.style.display = 'inline-flex',
+        () => cursor.style.alignItems = 'center',
+      ];
+
       window.addEventListener('load', async () => {
-        const content = `SVG Screencast\n\nThis is an SVG image with CSS animations revealing damage region change patches producing an animation!\n\nTomas Hubelbauer\n`;
-
-        const showcaseTextArea = document.getElementById('showcaseTextArea');
-        showcaseTextArea.focus();
-        showcaseTextArea.select();
-
         do {
-          showcaseTextArea.textContent += content[cursor++];
-          showcaseTextArea.setSelectionRange(showcaseTextArea.textContent.length - 1, showcaseTextArea.textContent.length);
+          script.shift()();
 
-          // Wait a random about of time between 10 and 30 ms for fluidity
-          await new Promise(resolve => window.setTimeout(resolve, 10 + Math.random() * 20));
+          // Auto-scroll to reveal overflowing content
+          window.scrollTo(0, document.body.scrollHeight);
+
+          await new Promise(resolve => window.setTimeout(resolve, 50));
         }
-        while (cursor < content.length);
+        while (script.length > 0);
 
         // Close after a delay to make sure to capture the final state fully
-        await new Promise(resolve => window.setTimeout(resolve, 25));
+        await new Promise(resolve => window.setTimeout(resolve, 500));
         window.close();
       });
     </script>
   </head>
   <body>
-    <textarea id="showcaseTextArea"></textarea>
   </body>
 </html>
