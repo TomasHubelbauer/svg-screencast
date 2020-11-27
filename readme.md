@@ -146,3 +146,10 @@ This time with PNG samples.
 
 It seems like JavaScript doesn't run in SVGs which are embedded using the `img`
 element: http://thenewcode.com/1094/Using-JavaScript-in-SVG
+
+#### Add a *Make test case* button to the web app to download before and after
+
+This button will download the before and after screenshot and the JSON with the
+regions which can then be copied to a directory in `test` and becomes a test
+case. This will be useful to debug the frames which have patches which overlap
+for some reason.
