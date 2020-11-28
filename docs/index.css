@@ -2,48 +2,30 @@ body {
   font-family: monospace;
 }
 
-div.player {
-  position: relative;
+input {
+  width: 100%;
 }
 
-div.player canvas {
-  visibility: hidden;
+div {
+  text-align: center;
 }
 
-div.player:hover canvas {
-  left: 0;
-  position: absolute;
-  top: 0;
-  visibility: initial;
-}
-
-div.player:hover img.poster {
-  /* TODO: Figure out why this fixes doubled up box-shadow in Firefox */
-  visibility: hidden;
-}
-
-img.poster {
-  box-shadow: 1px 1px 2px 2px rgba(0, 0, 0, .1);
-}
-
-img.patch {
-  position: absolute;
-}
-
-progress {
-  margin: 1ex;
-}
-
-div.patch {
-  align-items: center;
+div > div {
   display: flex;
-  margin: 1ex;
 }
 
-canvas {
+img {
   box-shadow: 1px 1px 2px 2px rgba(0, 0, 0, .1);
 }
 
-div.patch img {
-  box-shadow: 1px 1px 2px 2px rgba(0, 0, 0, .1);
+img:nth-child(odd) {
+  margin: 1ex 1ex 1ex auto;
+}
+
+img:nth-child(even) {
+  margin: 1ex auto 1ex 1ex;
+}
+
+img:only-child {
+  margin: 1ex auto;
 }

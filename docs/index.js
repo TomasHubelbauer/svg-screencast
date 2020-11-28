@@ -51,6 +51,13 @@ window.addEventListener('load', async () => {
   let rendering = false;
   let rerender = false;
 
+  async function loadImg(src) {
+    const img = document.createElement('img');
+    img.src = src;
+    await new Promise(resolve => img.addEventListener('load', resolve));
+    return img;
+  }
+
   async function render(_div) {
     if (rendering) {
       rerender = true;
@@ -58,19 +65,9 @@ window.addEventListener('load', async () => {
     }
 
     rendering = true;
+    _div.innerHTML = `${count}/${frames.length}`;
 
-    _div.innerHTML = '';
-
-    const div = document.createElement('div');
-    div.className = 'player';
-
-    const img = document.createElement('img');
-    img.src = image;
-    img.className = 'poster';
-    await new Promise(resolve => img.addEventListener('load', resolve));
-
-    div.append(img);
-    _div.append(div);
+    const img = await loadImg(image);
 
     const canvas = document.createElement('canvas');
     canvas.width = img.naturalWidth;
@@ -79,50 +76,40 @@ window.addEventListener('load', async () => {
     const context = canvas.getContext('2d');
     context.drawImage(img, 0, 0);
 
+    // Keep track of the background before current frame
+    let _img;
+
+    const div = document.createElement('div');
+    if (count === 1) {
+      div.append(await loadImg(canvas.toDataURL()));
+    }
+
     for (let index = 0; index < count; index++) {
       const frame = frames[index];
       for (const patch of frame.patches) {
-        const img = document.createElement('img');
-        img.src = patch.dataUrl;
-        img.className = 'patch';
-        img.style.left = patch.x + 'px';
-        img.style.top = patch.y + 'px';
-        await new Promise(resolve => img.addEventListener('load', resolve));
+        context.drawImage(await loadImg(patch.dataUrl), patch.x, patch.y);
+      }
 
-        // Draw everything except for the current frame to get live background
-        if (index < count - 1) {
-          context.drawImage(img, patch.x, patch.y);
-        }
-
-        div.append(img);
+      if (index === count - 2) {
+        div.append(_img = await loadImg(canvas.toDataURL()));
       }
     }
 
-    div.append(canvas);
-
-    const infoDiv = document.createElement('div');
-    const progress = document.createElement('progress');
-    progress.max = frames.length;
-    progress.value = count;
-
-    infoDiv.append(progress, `${count}/${frames.length}`);
-    _div.append(infoDiv);
+    div.append(await loadImg(canvas.toDataURL()));
+    _div.append(div);
 
     const frame = frames[count - 1];
     if (frame) {
       for (const patch of frame.patches) {
-        const div = document.createElement('div');
-        div.className = 'patch';
+        _div.append(`${patch.x}×${patch.y} (${patch.width}x${patch.height}):`);
 
         const _canvas = document.createElement('canvas');
         _canvas.width = patch.width;
         _canvas.height = patch.height;
-        _canvas.getContext('2d').drawImage(canvas, -patch.x, -patch.y);
+        _canvas.getContext('2d').drawImage(_img || img, -patch.x, -patch.y);
 
-        const img = document.createElement('img');
-        img.src = patch.dataUrl;
-
-        div.append(`${patch.x}×${patch.y} (${patch.width}x${patch.height}):`, _canvas, '🡆', img);
+        const div = document.createElement('div');
+        div.append(await loadImg(_canvas.toDataURL()), await loadImg(patch.dataUrl));
         _div.append(div);
       }
     }
@@ -141,7 +128,7 @@ window.addEventListener('load', async () => {
   input.max = frames.length;
   input.value = count;
   input.addEventListener('input', () => {
-    count = input.value;
+    count = input.valueAsNumber;
     render(div);
   });
 
