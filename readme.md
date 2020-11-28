@@ -22,7 +22,8 @@ Not ready for general use yet, if interested, check out [Development] below.
 ## Limitations
 
 - Does not produce minimal file sizes yet, a smarter algorithm is in the works
-- Does not have interactivity of any kind, SVG used thru `img` just can't do it
+- Does not have interactivity of any kind (play/pause, restart, fade scrubbar
+  based on pointer hover), SVG embedded through `img` won't run JavaScript
 - Does not show the mouse cursor at the moment (a solution is in the works tho)
 
 ## Development
@@ -59,29 +60,24 @@ electron.app.once('ready', async () => {
 });
 ```
 
-#### Spike various techniques to optimize the regionization in `optimize.js`
+#### Spike an optimized alternative to `patch.js` to use in the constructor
 
-- Merge regions in case the new single, large patch works out to a smaller size
-  than the two individual patches, do this recursively while this holds true.
-  Consider making use of the fact that consecutive regions are more likely to be
-  mergable than ones further apart (e.g. when typing new characters on the line)
-  but not always (e.g. changing starts of the two lines at once or scrolls).
-  Pick candidates for merging by calculating the bounding box of the two
-  individual patches and seeing if the area of the bounds box is just slightly
-  larger than the area of the invidual patches (less unchanged pixesl in the
-  patch). But this is just a pre-filter because the real test is if the Base64
-  of the single combined patch is smaller than the two individual patches.
-- Avoid optimizing frames with a small number of regions (1, 2) as it is not
-  likely to be worth it.
-- Detect scrolls and moves of regions and use CSS animations for sliding a crop
-  across the patch which then becomes a texture or moving the patch in case of
-  a translation motion. Scaling and rotation are likely not worth it. In case of
-  scrolling, retrospection is needed so that the consecutive patches detected to
-  constitute a scroll can be merged to a single image which is cropped and the
-  crop is CSS animated instead of embedding the various windows of the whole
-  patch individually. This could also be reused for detecting typing on a line
-  where the whole line could be a single patch and letters revealed by enlarging
-  the crop window.
+Techniques to explore:
+
+- Keep merging overlapping, touching or even nearby patches as long as the
+  length of the resulting SVG string is smaller than the length of the SVG
+  string needed to represent the two individual patches.
+- Detect motion of rectangular areas and signal a patch move and crop as opposed
+  to patch replace. This will optimize scrolling of otherwise unchanged content.
+  Use CSS animations to move and crop the patch instead of revealing it.
+- Further the scrolling detection technique in case of scrolling changed content
+  by detecting scroll candidate areas and then detecting change patches within
+  them (as they move) and finding the optimal combination of scroll and patch
+  signals which results in the shortest SVG string.
+- Retrospect and calculate patches which are revealed progressively instead of
+  all at once. E.g.: typing on a line would be a single patch whose slots would
+  be revealed letter by letter (using CSS animation to control the crop points)
+  instead of a set of individual patches for each letter.
 
 #### See if playback looping would be possible to do in the CSS animation
 
@@ -99,17 +95,9 @@ looping which preserves the streaming API?
 
 #### Consider optionally adding a scrubbar or another animation length indicator
 
-It seems like JavaScript doesn't run in SVGs which are embedded using the `img`
-element: http://thenewcode.com/1094/Using-JavaScript-in-SVG
-
-I also tried using CSS `:hover` pseudoselector and it only seems to work when
-accessed directly and not embedded in `img`, too, at least as per the VS Code
-MarkDown preview. Maybe it is worth trying on GitHub.
-
-However it seems likely that showing and hiding the scrubbar based on mouse
-interaction will be a no-go so we will need to go with something super low-key,
-like a muted bar at the bottom edge or something, to not take away from the
-content.
+Need to go with a low-key muted bar at the bottom edge to not interfere with the
+content as the scrubbar can't be toggled depending on the pointer state without
+JavaScript.
 
 #### Consider adding support for cursor, keystrokes and annotations
 
@@ -136,20 +124,13 @@ fragile. This functionality can already be supported by just loading up a bunch
 of screenshots, but I wonder what could be done to make it also usable in real-
 time screenshot streaming.
 
-#### Rewrite the tests and make them work again
-
-This time with PNG samples.
-
-#### Set up a GitHub Actions workflow to run the tests in on every new commit
-
-#### See if it would be possible to use JavaScript to restart the animation
-
-It seems like JavaScript doesn't run in SVGs which are embedded using the `img`
-element: http://thenewcode.com/1094/Using-JavaScript-in-SVG
-
 #### Add a *Make test case* button to the web app to download before and after
 
 This button will download the before and after screenshot and the JSON with the
 regions which can then be copied to a directory in `test` and becomes a test
 case. This will be useful to debug the frames which have patches which overlap
 for some reason.
+
+#### Fix the broken results causing test breakage
+
+Run using `node patch.test`.

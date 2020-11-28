@@ -1,0 +1,21 @@
+name: test
+on: push
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out the source code
+      uses: actions/checkout@v1
+    - name: Run the tests
+      run: |
+        # Fail as soon as any error has occured
+        set -e
+        # Print commands as they are being executed
+        set -x
+        # Run all test scripts
+        npm install
+        for f in *.test.js;
+        do
+          echo "$f"
+          node $f
+        done
