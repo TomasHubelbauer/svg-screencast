@@ -1,50 +1,40 @@
-import fs from 'fs';
-import sharp from 'sharp';
-import _patch from './patch.js';
+import patch from './patch.js';
 
-/** @typedef {{ stamp: Date; buffer: Buffer; }} Screenshot */
-export default async function screencast(/** @type {string} */ path, /** @type {Screenshot[]} */ screenshots, patch = _patch) {
-  const stream = fs.createWriteStream(path);
+/** @typedef {(x: number, y: number, width: number, height: number) => Promise<Buffer>} Crop */
+/** @typedef {{ stamp: Date; buffer: Buffer; width: number; height: number; format: string; crop: Crop; }} Screenshot */
 
-  /** @type {Date} */
-  let stamp;
+export default async function* screencast(/** @type {() => AsyncGenerator<Screenshot>} */ screenshots) {
   let frame = 0;
 
-  /** @type {Buffer} */
-  let _buffer;
+  /** @type {Date} */
+  let _stamp;
 
-  /** @type {{ width: number; height: number; format: string; }} */
-  let _metadata;
+  /** @type {Screenshot} */
+  let _screenshot;
 
-  for await (const screenshot of screenshots) {
-    const data = sharp(screenshot.buffer);
-    const metadata = await data.metadata();
+  for await (const screenshot of screenshots()) {
+    const { stamp, width, height, format, buffer, crop } = screenshot;
 
     // Write header and poster on initial screenshot
-    if (stamp === undefined) {
-      stamp = screenshot.stamp;
+    if (_stamp === undefined) {
+      yield `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">\n`;
+      yield `<image width="${width}" height="${height}" href="data:image/${format};base64,${(await crop()).toString('base64')}"/>\n`;
+      yield `<style>\nimage[class] { visibility: hidden; }\n@keyframes _ { to { visibility: visible; } }\n</style>\n`;
 
-      const { width, height, format } = metadata;
-      stream.write(`<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">\n`);
-      stream.write(`<image width="${width}" height="${height}" href="data:image/${format};base64,${screenshot.buffer.toString('base64')}"/>\n`);
-      stream.write(`<style>\nimage[class] { visibility: hidden; }\n@keyframes _ { to { visibility: visible; } }\n</style>\n`);
-
-      _buffer = await data.raw().toBuffer();
-      _metadata = metadata;
+      _stamp = stamp;
+      _screenshot = screenshot;
       continue;
     }
 
     // Ensure size remains constant among the screenshots
-    if (metadata.width !== _metadata.width || metadata.height !== _metadata.height) {
-      throw new Error(`Screenshot size ${metadata.width}×${metadata.height} differs from baseline ${_metadata.width}×${_metadata.height}.`);
+    if (width !== _screenshot.width || height !== _screenshot.height) {
+      throw new Error(`Screenshot size ${width}×${height} differs from baseline ${_screenshot.width}×${_screenshot.height}.`);
     }
 
     // Ensure stamp remains chronological among the screenshots
-    if (screenshot.stamp <= stamp) {
-      throw new Error(`Screenshot stamp ${screenshot.stamp} is not chronological with respect to baseline ${stamp}.`);
+    if (stamp <= _stamp) {
+      throw new Error(`Screenshot stamp ${stamp} is not chronological with respect to baseline ${_stamp}.`);
     }
-
-    const buffer = await data.raw().toBuffer();
 
     // TODO: Make the `patch` implementation configurable and develop alternatives.
     // Keep merging overlapping, touching and maybe even nearby regions and keeping
@@ -52,20 +42,21 @@ export default async function screencast(/** @type {string} */ path, /** @type {
     // than the combined SVG string of the two individual regions. Signal insertion
     // of an entire frame where patching the damage would result in a longer SVG
     // string than placing the frame in as a whole
-    const patches = patch(metadata.width, metadata.height, _buffer, buffer);
+    const patches = patch(width, height, buffer, _screenshot.buffer);
     if (patches.length > 0) {
-      stream.write(`<style>._${frame} { animation: _ 0ms ${screenshot.stamp - stamp}ms forwards; }</style>\n`);
+      yield `<style>._${frame} { animation: _ 0ms ${stamp - _stamp}ms forwards; }</style>\n`;
 
       for (const patch of patches) {
-        const buffer = await data.extract(patch).png().toBuffer();
-        stream.write(`<image class="_${frame}" x="${patch.left}" y="${patch.top}" width="${patch.width}" height="${patch.height}" href="data:image/${metadata.format};base64,${buffer.toString('base64')}"/>\n`);
+        const { left, top, width, height } = patch;
+        const buffer = await crop(patch);
+        yield `<image class="_${frame}" x="${left}" y="${top}" width="${width}" height="${height}" href="data:image/${format};base64,${buffer.toString('base64')}"/>\n`;
       }
+
+      frame++;
     }
 
-    _buffer = buffer;
-    frame++;
+    _screenshot = screenshot;
   }
 
-  stream.write('</svg>\n');
-  stream.close();
+  yield '</svg>\n';
 }

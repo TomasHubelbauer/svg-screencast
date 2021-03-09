@@ -36,10 +36,17 @@ Not ready for general use yet, if interested, check out [Development] below.
    npx electron .
    # *.png screenshots
    ```
-2. Execute the program to generate the screencast
+2. Remove the last screenshot if it is broken
+3. Execute the program to generate the screencast
    ```sh
    node .
    # demo.svg screencast
+   ```
+4. Inspect the screencast
+   ```sh
+   cd docs
+   python3 -m http.server
+   # http://localhost:8000
    ```
 
 To run tests:
@@ -160,3 +167,8 @@ Combined with making this run in the browser, this feature would allow
 generating SVG screencast from video files. This will work best for screen
 recordings where it could beat GIF at lower size and better quality, especially
 if we account for the GZIP compression of the SVG in transit.
+
+#### Fix the last screenshot generating broken in the Electron `demo` app
+
+It won't preview correctly in VS Code and Sharp crashes parsing it. It probably
+doesn't serialize fast enough to disk as the Electron process exits.
