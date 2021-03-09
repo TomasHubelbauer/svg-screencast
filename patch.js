@@ -3,6 +3,11 @@ export default function patch(/** @type {number} */ width, /** @type {number} */
     throw new Error(`Buffers are not the same length: ${buffer1.length} versus ${buffer2.length}!`);
   }
 
+  const length = width * height * 4;
+  if (buffer1.length !== length || buffer2.length !== length) {
+    throw new Error(`Buffers are not RGBA: ${buffer1.length}, ${buffer2.length} versus ${length}!`);
+  }
+
   let hit = false;
   let left;
   let right;
