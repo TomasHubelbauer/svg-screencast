@@ -17,34 +17,54 @@ void async function () {
     const caseDirectoryPath = path.join(testDirectoryPath, name);
 
     const beforePngFilePath = path.join(caseDirectoryPath, 'before') + '.png';
-    const afterPngFilePath = path.join(caseDirectoryPath, 'after') + '.png';
-    const patchPngFilePath = path.join(caseDirectoryPath, 'patch') + '.png';
-    const patchJsonFilePath = path.join(caseDirectoryPath, 'patch') + '.json';
-
     const beforeSharp = sharp(await fs.promises.readFile(beforePngFilePath));
-    const beforeRawBuffer = await beforeSharp.raw().toBuffer();
+    const beforeRawBuffer = await beforeSharp.raw().ensureAlpha().toBuffer();
+
+    const afterPngFilePath = path.join(caseDirectoryPath, 'after') + '.png';
     const afterSharp = sharp(await fs.promises.readFile(afterPngFilePath));
-    const afterRawBuffer = await afterSharp.raw().toBuffer();
+    const afterRawBuffer = await afterSharp.raw().ensureAlpha().toBuffer();
 
     const [_patch, ...rest] = patch(50, 50, beforeRawBuffer, afterRawBuffer);
     if (rest.length !== 0) {
       results[name].errors.push(`Produced multiple (${rest.length + 1}) patches instead of one.`);
     }
 
-    const _patchPngBuffer = await afterSharp.extract(_patch).png().toBuffer();
-    const patchPngBuffer = await fs.promises.readFile(patchPngFilePath);
-    const pngComparison = Buffer.compare(_patchPngBuffer, patchPngBuffer);
-    if (pngComparison !== 0) {
-      await fs.promises.writeFile(patchPngFilePath + '.fail.png', _patchPngBuffer);
-      results[name].errors.push('Produced different data.');
+    const patchPngFilePath = path.join(caseDirectoryPath, 'patch') + '.png';
+    const patchPngFailPngFilePath = patchPngFilePath + '.fail.png';
+    const _patchRgbaBuffer = await afterSharp.extract(_patch).raw().ensureAlpha().toBuffer();
+    const patchRgbaBuffer = await sharp(await fs.promises.readFile(patchPngFilePath)).raw().ensureAlpha().toBuffer();
+    if (Buffer.compare(_patchRgbaBuffer, patchRgbaBuffer) !== 0) {
+      await fs.promises.writeFile(patchPngFailPngFilePath, await afterSharp.extract(_patch).png().toBuffer());
+      results[name].errors.push(`Produced different data: ${_patchRgbaBuffer.length} versus ${patchRgbaBuffer.length}`);
+    }
+    else {
+      try {
+        await fs.promises.unlink(patchPngFailPngFilePath);
+      }
+      catch (error) {
+        if (error.code !== 'ENOENT') {
+          throw error;
+        }
+      }
     }
 
-    const _patchJsonBuffer = Buffer.from(JSON.stringify(_patch, null, 2));
-    const patchJsonBuffer = await fs.promises.readFile(patchJsonFilePath);
-    const jsonComparison = Buffer.compare(_patchJsonBuffer, patchJsonBuffer);
-    if (jsonComparison !== 0) {
-      await fs.promises.writeFile(patchJsonFilePath + '.fail.json', _patchJsonBuffer);
-      results[name].errors.push('Produced different metadata.');
+    const patchJsonFilePath = path.join(caseDirectoryPath, 'patch') + '.json';
+    const patchJsonFailJsonFilePath = patchJsonFilePath + '.fail.json';
+    const _patchData = JSON.stringify(_patch, null, 2);
+    const patchData = await fs.promises.readFile(patchJsonFilePath, 'utf-8');
+    if (_patchData.replace(/\r?\n/g, '') !== patchData.replace(/\r?\n/g, '')) {
+      await fs.promises.writeFile(patchJsonFailJsonFilePath, _patchData);
+      results[name].errors.push(`Produced different metadata: ${_patchData} versus ${patchData}`);
+    }
+    else {
+      try {
+        await fs.promises.unlink(patchJsonFailJsonFilePath);
+      }
+      catch (error) {
+        if (error.code !== 'ENOENT') {
+          throw error;
+        }
+      }
     }
   }
 
