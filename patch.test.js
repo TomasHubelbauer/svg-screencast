@@ -8,7 +8,7 @@ void async function () {
 
   const testDirectoryPath = 'test/patch';
   for (const name of await fs.promises.readdir(testDirectoryPath)) {
-    if (name === '.gitignore') {
+    if (name === '.gitignore' || name === '.DS_Store') {
       continue;
     }
 
