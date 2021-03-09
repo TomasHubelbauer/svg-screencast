@@ -30,10 +30,27 @@ Not ready for general use yet, if interested, check out [Development] below.
 
 ## Development
 
-To generate `demo.svg`, run `npx electron .` in `demo` to capture the individual
-screenshots and then `npm start` (`node .`) to produce the screencast from them.
+1. Generate screenshots to feed the program
+   ```sh
+   cd demo
+   npx electron .
+   # *.png screenshots
+   ```
+2. Execute the program to generate the screencast
+   ```sh
+   node .
+   # demo.svg screencast
+   ```
 
-To run tests, run `npm test` (`cd test && node .`).
+To run tests:
+
+```sh
+for f in *.test.js;
+do
+  echo "$f"
+  node $f
+done
+```
 
 ### To-Do
 
