@@ -3,8 +3,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "start": "node .",
-    "test": "cd test && node ."
+    "start": "node ."
   },
   "dependencies": {
     "sharp": "^0.26.3"
