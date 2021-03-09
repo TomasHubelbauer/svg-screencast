@@ -134,3 +134,14 @@ for some reason.
 #### Fix the broken results causing test breakage
 
 Run using `node patch.test`.
+
+#### Add support for running in the browser using `canvas` instead of `patch`
+
+Unless `patch` already has a `canvas` backend to use in the browser?
+
+#### Add a mode to the demo app UI to load a video, extract frames and generate
+
+Combined with making this run in the browser, this feature would allow
+generating SVG screencast from video files. This will work best for screen
+recordings where it could beat GIF at lower size and better quality, especially
+if we account for the GZIP compression of the SVG in transit.
