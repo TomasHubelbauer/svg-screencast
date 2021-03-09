@@ -10,7 +10,7 @@ electron.app.once('ready', async () => {
   }
 
   const window = new electron.BrowserWindow({ width: 600, height: 400 });
-  window.loadFile('./index.html');
+  window.loadFile('index.html');
 
   window.webContents.once('dom-ready', async () => {
     while (!window.isDestroyed()) {

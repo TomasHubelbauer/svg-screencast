@@ -1,5 +1,5 @@
 window.addEventListener('load', async () => {
-  const svg = await fetch('demo.svg').then(response => response.text());
+  const svg = await awaitChoice();
   const doc = new DOMParser().parseFromString(svg, 'text/xml');
 
   const frames = [];
@@ -139,3 +139,40 @@ window.addEventListener('load', async () => {
   // Give slider focus to be able to use arrow keys straight away
   input.focus();
 });
+
+async function awaitChoice() {
+  let resolve;
+  let reject;
+  const promise = new Promise((_resolve, _reject) => {
+    resolve = _resolve;
+    reject = _reject;
+  });
+
+  const input = document.getElementById('input');
+  input.addEventListener('change', () => {
+    if (input.files.length !== 1) {
+      reject('Select only a single file.');
+      return;
+    }
+
+    const fileReader = new FileReader();
+    fileReader.addEventListener('error', reject);
+    fileReader.addEventListener('loadend', () => {
+      input.remove();
+      button.remove();
+      resolve(fileReader.result);
+    });
+
+    fileReader.readAsText(input.files[0]);
+  });
+
+  const button = document.getElementById('button');
+  button.addEventListener('click', async () => {
+    const svg = await fetch('../demo.svg').then(response => response.text());
+    input.remove();
+    button.remove();
+    resolve(svg);
+  });
+
+  return promise;
+}

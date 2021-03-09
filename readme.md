@@ -2,7 +2,7 @@
 
 ![](https://github.com/tomashubelbauer/svg-screencast/actions/workflows/test.yml/badge.svg)
 
-![](docs/demo.svg)
+![](demo.svg)
 
 SVG Screencast is a project which generates animated SVG files by using CSS
 animations to reveal elements. Feed it an array of screenshots and stamps and it
@@ -30,24 +30,51 @@ Not ready for general use yet, if interested, check out [Development] below.
 
 ## Development
 
-1. Generate screenshots to feed the program
-   ```sh
-   cd demo
-   npx electron .
-   # *.png screenshots
-   ```
-2. Remove the last screenshot if it is broken
-3. Execute the program to generate the screencast
-   ```sh
-   node .
-   # demo.svg screencast
-   ```
-4. Inspect the screencast
-   ```sh
-   cd docs
-   python3 -m http.server
-   # http://localhost:8000
-   ```
+### Node Generator
+
+The Node sample uses Electron to generate screenshots and Node to generate the
+screencast. The screenshot generation in Electron and screencast generation in
+Node steps are split into two commands, because Electron does not support ES
+Modules: https://github.com/electron/electron/issues/21457
+
+```sh
+cd node-generator
+
+# Generate screenshots
+npx electron .
+# *.png screenshots
+
+# TODO: Delete the latest screenshot (generates broken, known issue)
+
+cd esm
+
+# Install Sharp
+npm install
+
+# Generate screencast
+node .
+# ../../demo.svg screencast
+```
+
+The screencast is now ready. It can be inspected with the [Inspector].
+
+### Browser Generator
+
+SVG Screencast works both in Node and the browser. To try the browser example,
+serve this repository (e.g.: `python3 -m http.server` and http://localhost:8000)
+and click on *Generator*.
+
+The generated screencast can be downloaded and inspected with the [Inspector].
+
+### Inspector
+
+The inspector allows viewing transitions from one from to another and the patch
+that happen on each transition. To access it, serve this repository (e.g.:
+`python3 -m http.server` and http://localhost:8000) and click on *Inspector*.
+
+[Inspector]: #inspector
+
+### Tests
 
 To run tests:
 
@@ -150,25 +177,33 @@ fragile. This functionality can already be supported by just loading up a bunch
 of screenshots, but I wonder what could be done to make it also usable in real-
 time screenshot streaming.
 
-#### Add a *Make test case* button to the web app to download before and after
+#### Add a *Make test case* button to the Inspector to download before and after
 
 This button will download the before and after screenshot and the JSON with the
 regions which can then be copied to a directory in `test` and becomes a test
 case. This will be useful to debug the frames which have patches which overlap
 for some reason.
 
-#### Add support for running in the browser using `canvas` instead of `patch`
-
-Unless `patch` already has a `canvas` backend to use in the browser?
-
 #### Add a mode to the demo app UI to load a video, extract frames and generate
 
-Combined with making this run in the browser, this feature would allow
-generating SVG screencast from video files. This will work best for screen
-recordings where it could beat GIF at lower size and better quality, especially
-if we account for the GZIP compression of the SVG in transit.
+Add multiple scripts to the browser generator application and make one of them
+load a video file from the user and then extract its frames and feed them to the
+algorithm to convert a video to a screencast through the frames - screenshots.
+
+This will work best for screen recordings where it could beat GIF at lower size
+and better quality, especially if we account for the GZIP compression of the SVG
+in transit.
 
 #### Fix the last screenshot generating broken in the Electron `demo` app
 
 It won't preview correctly in VS Code and Sharp crashes parsing it. It probably
 doesn't serialize fast enough to disk as the Electron process exits.
+
+#### Do some research on comparison with GIF size accounting for GZIP and none
+
+#### Compare the SVG size where each style preceeds its patches and collected
+
+Currently we place a `style` element before each frame's patches. What if we
+instead collected all the rules in a single stylesheet at the end? It would
+block the playback until the whole file is loaded (but do we play now while it
+is loading?) but might decrease the file size.
