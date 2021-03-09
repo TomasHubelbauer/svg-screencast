@@ -131,10 +131,6 @@ regions which can then be copied to a directory in `test` and becomes a test
 case. This will be useful to debug the frames which have patches which overlap
 for some reason.
 
-#### Fix the broken results causing test breakage
-
-Run using `node patch.test`.
-
 #### Add support for running in the browser using `canvas` instead of `patch`
 
 Unless `patch` already has a `canvas` backend to use in the browser?
