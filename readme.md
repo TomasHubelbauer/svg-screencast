@@ -195,16 +195,6 @@ regions which can then be copied to a directory in `test` and becomes a test
 case. This will be useful to debug the frames which have patches which overlap
 for some reason.
 
-#### Add a mode to the demo app UI to load a video, extract frames and generate
-
-Add multiple scripts to the browser generator application and make one of them
-load a video file from the user and then extract its frames and feed them to the
-algorithm to convert a video to a screencast through the frames - screenshots.
-
-This will work best for screen recordings where it could beat GIF at lower size
-and better quality, especially if we account for the GZIP compression of the SVG
-in transit.
-
 #### Fix the last screenshot generating broken in the Electron `demo` app
 
 It won't preview correctly in VS Code and Sharp crashes parsing it. It probably
