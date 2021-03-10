@@ -1,0 +1,7 @@
+input {
+  display: block;
+}
+
+video, canvas, svg {
+  max-height: 40vh;
+}
