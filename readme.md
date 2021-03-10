@@ -66,6 +66,15 @@ and click on *Generator*.
 
 The generated screencast can be downloaded and inspected with the [Inspector].
 
+### Converter
+
+The converter allows for extracting screenshots - frames - of a video and using
+them to generate a screencast. It is useful as a benchmark of both the fidelity
+and performance of SVG Screencast. To access it, serve this repository (e.g.:
+`python3 -m http.server` and http://localhost:8000) and click on *Converter*.
+
+The generated screencast can be downloaded and inspected with the [Inspector].
+
 ### Inspector
 
 The inspector allows viewing transitions from one from to another and the patch
