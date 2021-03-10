@@ -200,7 +200,10 @@ for some reason.
 It won't preview correctly in VS Code and Sharp crashes parsing it. It probably
 doesn't serialize fast enough to disk as the Electron process exits.
 
-#### Do some research on comparison with GIF size accounting for GZIP and none
+#### Compare SVG size with GIF size with GZIP compression and without
+
+Find a way to serve the files with compression and use the browser developer
+tools numbers to get the compression data.
 
 #### Compare the SVG size where each style preceeds its patches and collected
 
