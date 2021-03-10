@@ -1,12 +1,12 @@
 import fs from 'fs';
 import path from 'path';
 import sharp from 'sharp';
-import patch from './patch.js';
+import patch from '../patch.js';
 
 void async function () {
   const results = [];
 
-  const testDirectoryPath = 'test/patch';
+  const testDirectoryPath = 'patch';
   for (const name of await fs.promises.readdir(testDirectoryPath)) {
     if (name === '.gitignore' || name === '.DS_Store') {
       continue;

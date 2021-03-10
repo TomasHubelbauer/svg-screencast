@@ -79,6 +79,8 @@ that happen on each transition. To access it, serve this repository (e.g.:
 To run tests:
 
 ```sh
+cd test
+npm install
 for f in *.test.js;
 do
   echo "$f"
@@ -207,8 +209,3 @@ Currently we place a `style` element before each frame's patches. What if we
 instead collected all the rules in a single stylesheet at the end? It would
 block the playback until the whole file is loaded (but do we play now while it
 is loading?) but might decrease the file size.
-
-#### Fix the broken tests
-
-The tests are broken again, due to the missing Sharp dependency which was
-moved.

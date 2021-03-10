@@ -13,6 +13,7 @@ jobs:
         # Print commands as they are being executed
         set -x
         # Run all test scripts
+        cd test
         npm install
         for f in *.test.js;
         do
