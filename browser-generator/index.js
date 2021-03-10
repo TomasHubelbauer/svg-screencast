@@ -1,4 +1,4 @@
-import screencast from '../../screencast.js';
+import screencast from '../screencast.js';
 
 window.addEventListener('load', async () => {
   /** @type {Blob} */
