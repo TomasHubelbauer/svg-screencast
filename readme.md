@@ -211,3 +211,8 @@ Currently we place a `style` element before each frame's patches. What if we
 instead collected all the rules in a single stylesheet at the end? It would
 block the playback until the whole file is loaded (but do we play now while it
 is loading?) but might decrease the file size.
+
+#### Add an option to output the SVG and external images it links to
+
+This will save space but will increase traffic overhead. This might be a
+worthwhile tradeoff for some use-cases, so supporting it seems worth it.
