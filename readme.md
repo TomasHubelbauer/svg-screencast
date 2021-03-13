@@ -30,41 +30,47 @@ Not ready for general use yet, if interested, check out [Development] below.
 
 ## Development
 
-### Node Generator
+SVG Screencast works both in browser and in Node. Development and testing is
+facilitated using so called *generators*.
 
-The Node sample uses Electron to generate screenshots and Node to generate the
-screencast.
+Generators are programs which use SVG Screencast at their core, but produce the
+screencast from screenshots using platform-specific APIs for image manipulation
+(generating/capturing, cropping, saving etc.).
+
+Web-based tools can be accessed by serving this repository with a web server and
+clicking the respective link, e.g.:
+
+```
+python3 -m http.server
+# http://localhost:8000
+```
+
+### Electron Generator
 
 ```sh
-cd node-generator
+cd electron-generator
 npx electron .
 ```
 
 The generated screencast is written into [`screencast.svg`](screencast.svg) and
 can be inspected with the [Inspector].
 
-### Browser Generator
-
-SVG Screencast works both in Node and the browser. To try the browser example,
-serve this repository (e.g.: `python3 -m http.server` and http://localhost:8000)
-and click on *Generator*.
+### Browser Generator (**Generator** link)
 
 The generated screencast can be downloaded and inspected with the [Inspector].
 
-### Converter
+### Converter (**Converter** link)
 
 The converter allows for extracting screenshots - frames - of a video and using
 them to generate a screencast. It is useful as a benchmark of both the fidelity
-and performance of SVG Screencast. To access it, serve this repository (e.g.:
-`python3 -m http.server` and http://localhost:8000) and click on *Converter*.
+and performance of SVG Screencast.
 
 The generated screencast can be downloaded and inspected with the [Inspector].
 
-### Inspector
+### Inspector (**Inspector** link)
 
-The inspector allows viewing transitions from one from to another and the patch
-that happen on each transition. To access it, serve this repository (e.g.:
-`python3 -m http.server` and http://localhost:8000) and click on *Inspector*.
+The inspector allows viewing transitions from one screenshot of the screencast
+to another and the patches that are applied to facilitate them.
 
 [Inspector]: #inspector
 
