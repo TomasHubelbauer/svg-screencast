@@ -143,8 +143,7 @@ Find a way to serve the files with compression and use the browser developer
 tools numbers to get the compression data.
 
 ```sh
-pip3 install httpcompressionserver
-python3 -m httpcompressionserver`
+npx gzip-size-cli screencast.svg
 ```
 
 #### Add an option to output the SVG and external images it links to
