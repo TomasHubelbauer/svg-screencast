@@ -104,6 +104,8 @@ possible to remove in `package.json`.
 - Detect parts of patches which are solid color rectangles and break down the
   patch into several such that the solid color rectangle becomes an SVG element
   and not image data if the total SVG string length savings are worth it
+  - Do the same for patches which have big areas which are all unchanged pixels
+    (like something changing border color but not content)
 - Remove patches which negated themselves instead of replacing with the original
   background (must check that the considered area was not used by other patches)
 
