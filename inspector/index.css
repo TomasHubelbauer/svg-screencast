@@ -2,10 +2,10 @@ body {
   font-family: monospace;
 }
 
-a {
+button {
   display: block;
   font: icon;
-  margin: 1em;
+  margin: 1em auto;
 }
 
 input {

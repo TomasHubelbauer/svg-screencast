@@ -51,11 +51,28 @@ window.addEventListener('load', async () => {
   let rendering = false;
   let rerender = false;
 
-  async function loadImg(src) {
+  async function loadImg(src, id) {
     const img = document.createElement('img');
     img.src = src;
+    img.id = id;
     await new Promise(resolve => img.addEventListener('load', resolve));
     return img;
+  }
+
+  function handleButtonClick() {
+    const files = [
+      { name: 'before.png', url: document.querySelector('#before').src },
+      { name: 'after.png', url: document.querySelector('#after').src },
+    ];
+
+    for (const file of files) {
+      const a = document.createElement('a');
+      a.download = file.name;
+      a.href = file.url;
+      a.target = '_blank';
+      a.click();
+      a.remove();
+    }
   }
 
   async function render(_div) {
@@ -81,7 +98,7 @@ window.addEventListener('load', async () => {
 
     const div = document.createElement('div');
     if (count === 1) {
-      div.append(await loadImg(canvas.toDataURL()));
+      div.append(await loadImg(canvas.toDataURL(), 'before'));
     }
 
     for (let index = 0; index < count; index++) {
@@ -91,20 +108,20 @@ window.addEventListener('load', async () => {
       }
 
       if (index === count - 2) {
-        div.append(_img = await loadImg(canvas.toDataURL()));
+        div.append(_img = await loadImg(canvas.toDataURL(), 'before'));
       }
     }
 
-    div.append(await loadImg(canvas.toDataURL()));
+    div.append(await loadImg(canvas.toDataURL(), count > 0 ? 'after' : ''));
     _div.append(div);
 
     _div.append(img.naturalWidth + 'x' + img.naturalHeight);
 
     if (count > 0) {
-      const a = document.createElement('a');
-      a.textContent = 'Download test';
-      a.addEventListener('click', () => alert('TODO: Download before.png, after.png, patch-n.png and patch-n.json to make a test case'));
-      _div.append(a);
+      const button = document.createElement('button');
+      button.textContent = 'Download test case';
+      button.addEventListener('click', handleButtonClick);
+      _div.append(button);
     }
 
     const frame = frames[count - 1];
