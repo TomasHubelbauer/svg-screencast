@@ -55,11 +55,11 @@ npx electron .
 The generated screencast is written into [`screencast.svg`](screencast.svg) and
 can be inspected with the [Inspector].
 
-### Browser Generator (**Generator** link)
+### Browser Generator
 
 The generated screencast can be downloaded and inspected with the [Inspector].
 
-### Converter (**Converter** link)
+### Converter
 
 The converter allows for extracting screenshots - frames - of a video and using
 them to generate a screencast. It is useful as a benchmark of both the fidelity
@@ -67,7 +67,7 @@ and performance of SVG Screencast.
 
 The generated screencast can be downloaded and inspected with the [Inspector].
 
-### Inspector (**Inspector** link)
+### Inspector
 
 The inspector allows viewing transitions from one screenshot of the screencast
 to another and the patches that are applied to facilitate them.
@@ -76,8 +76,11 @@ to another and the patches that are applied to facilitate them.
 
 ### Tests
 
-To run a particular test, go to `test/$test` and run `node .`. To run all tests,
-refer to [`test.yml`](.github/workflows/test.yml).
+```
+cd test
+npm install
+node .
+```
 
 ### To-Do
 
@@ -86,24 +89,18 @@ refer to [`test.yml`](.github/workflows/test.yml).
 `main.cjs` will then be possible to merge into `index.js` and `main` will be
 possible to remove in `package.json`.
 
-#### Spike an optimized alternative to `patch.js` to use in the constructor
+#### Add an optimization pass that would run after the patching and minimize
 
-Techniques to explore:
-
-- Keep merging overlapping, touching or even nearby patches as long as the
-  length of the resulting SVG string is smaller than the length of the SVG
-  string needed to represent the two individual patches.
-- Detect motion of rectangular areas and signal a patch move and crop as opposed
-  to patch replace. This will optimize scrolling of otherwise unchanged content.
-  Use CSS animations to move and crop the patch instead of revealing it.
-- Further the scrolling detection technique in case of scrolling changed content
-  by detecting scroll candidate areas and then detecting change patches within
-  them (as they move) and finding the optimal combination of scroll and patch
-  signals which results in the shortest SVG string.
-- Retrospect and calculate patches which are revealed progressively instead of
-  all at once. E.g.: typing on a line would be a single patch whose slots would
-  be revealed letter by letter (using CSS animation to control the crop points)
-  instead of a set of individual patches for each letter.
+- For each frame, check the patches, their total SVG string length and see if
+  merging them group-wise recursively finds a combination which is smaller than
+  the individual patches
+- Detect patches which are just horizontal/vertical shifts of some rectangular
+  area and represent them using an SVG animation instead of the patches
+  - Add support for detecting cropping to enable animation of content moved by
+    a scrollbar
+- Detect patches which are progressive unfolding of a larger area, for example
+  like typing on a line, and animate that using a crop of a single, big patch
+  instead of the multiple individual patches
 
 #### See if playback looping would be possible to do in the CSS animation
 

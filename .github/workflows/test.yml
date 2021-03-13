@@ -15,14 +15,4 @@ jobs:
         # Run all test scripts
         cd test
         npm install
-        for d in */ ;
-        do
-          if [ $d = "node_modules/" ]; then
-            continue
-          fi
-
-          echo $d
-          cd $d
-          node .
-          cd ..
-        done
+        node .
