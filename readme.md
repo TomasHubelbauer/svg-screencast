@@ -101,6 +101,9 @@ possible to remove in `package.json`.
 - Detect patches which are progressive unfolding of a larger area, for example
   like typing on a line, and animate that using a crop of a single, big patch
   instead of the multiple individual patches
+- Detect parts of patches which are solid color rectangles and break down the
+  patch into several such that the solid color rectangle becomes an SVG element
+  and not image data if the total SVG string length savings are worth it
 
 #### See if playback looping would be possible to do in the CSS animation
 
@@ -158,6 +161,11 @@ Currently we place a `style` element before each frame's patches. What if we
 instead collected all the rules in a single stylesheet at the end? It would
 block the playback until the whole file is loaded (but do we play now while it
 is loading?) but might decrease the file size.
+
+```sh
+pip3 install httpcompressionserver
+python3 -m httpcompressionserver`
+```
 
 #### Add an option to output the SVG and external images it links to
 
