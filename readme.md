@@ -142,13 +142,6 @@ time screenshot streaming.
 Find a way to serve the files with compression and use the browser developer
 tools numbers to get the compression data.
 
-#### Compare the SVG size where each style preceeds its patches and collected
-
-Currently we place a `style` element before each frame's patches. What if we
-instead collected all the rules in a single stylesheet at the end? It would
-block the playback until the whole file is loaded (but do we play now while it
-is loading?) but might decrease the file size.
-
 ```sh
 pip3 install httpcompressionserver
 python3 -m httpcompressionserver`
