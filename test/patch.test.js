@@ -31,10 +31,10 @@ void async function () {
 
     const patchPngFilePath = path.join(caseDirectoryPath, 'patch') + '.png';
     const patchPngFailPngFilePath = patchPngFilePath + '.fail.png';
-    const _patchRgbaBuffer = await afterSharp.extract(_patch).raw().ensureAlpha().toBuffer();
+    const _patchRgbaBuffer = await afterSharp.extract({ ..._patch, left: _patch.x, top: _patch.y }).raw().ensureAlpha().toBuffer();
     const patchRgbaBuffer = await sharp(await fs.promises.readFile(patchPngFilePath)).raw().ensureAlpha().toBuffer();
     if (Buffer.compare(_patchRgbaBuffer, patchRgbaBuffer) !== 0) {
-      await fs.promises.writeFile(patchPngFailPngFilePath, await afterSharp.extract(_patch).png().toBuffer());
+      await fs.promises.writeFile(patchPngFailPngFilePath, await afterSharp.extract({ ..._patch, left: _patch.x, top: _patch.y }).png().toBuffer());
       results[name].errors.push(`Produced different data: ${_patchRgbaBuffer.length} versus ${patchRgbaBuffer.length}`);
     }
     else {

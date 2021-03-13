@@ -66,7 +66,7 @@ window.addEventListener('load', () => {
           }
 
           // Get the image data of the patch
-          const imageData = context.getImageData(patch.left, patch.top, patch.width, patch.height);
+          const imageData = context.getImageData(patch.x, patch.y, patch.width, patch.height);
           const _imageData = context.getImageData(0, 0, canvas.width, canvas.height);
 
           // Resize the canvas to the patch size

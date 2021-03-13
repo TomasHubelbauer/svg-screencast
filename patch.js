@@ -55,5 +55,5 @@ export default function patch(/** @type {number} */ width, /** @type {number} */
     return [];
   }
 
-  return [{ left, top, width: right - left + 1, height: bottom - top + 1 }];
+  return [{ x: left, y: top, width: right - left + 1, height: bottom - top + 1 }];
 }

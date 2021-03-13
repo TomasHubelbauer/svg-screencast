@@ -33,30 +33,15 @@ Not ready for general use yet, if interested, check out [Development] below.
 ### Node Generator
 
 The Node sample uses Electron to generate screenshots and Node to generate the
-screencast. The screenshot generation in Electron and screencast generation in
-Node steps are split into two commands, because Electron does not support ES
-Modules: https://github.com/electron/electron/issues/21457
+screencast.
 
 ```sh
 cd node-generator
-
-# Generate screenshots
 npx electron .
-# *.png screenshots
-
-# TODO: Delete the latest screenshot (generates broken, known issue)
-
-cd esm
-
-# Install Sharp
-npm install
-
-# Generate screencast
-node .
-# ../../demo.svg screencast
 ```
 
-The screencast is now ready. It can be inspected with the [Inspector].
+The generated screencast is written into [`demo.svg`](demo.svg) and can be
+inspected with the [Inspector].
 
 ### Browser Generator
 
@@ -99,34 +84,10 @@ done
 
 ### To-Do
 
-#### Try using ESM hack in Electron
+### Simplify `node-generator` once Electron supports ESM entry point
 
-https://github.com/electron/electron/issues/21457#issuecomment-757790025
-
-#### Demonstrate real-time usage once Electron supports ESM modules
-
-https://github.com/electron/electron/issues/21457
-
-```js
-import electron from 'electron';
-import screencast from '../screencast.js';
-
-electron.app.once('ready', async () => {
-  const window = new electron.BrowserWindow({ width: 600, height: 400 });
-  window.loadFile('./index.html');
-
-  async function* screenshot() {
-    while (!window.isDestroyed()) {
-      const nativeImage = await window.capturePage();
-      yield { stamp: new Date(), buffer: nativeImage.toPNG() };
-    }
-  }
-
-  window.webContents.once('dom-ready', async () => {
-    await screencast('../realtime-demo.svg', screenshot());
-  });
-});
-```
+`main.cjs` will then be possible to merge into `index.js` and `main` will be
+possible to remove in `package.json`.
 
 #### Spike an optimized alternative to `patch.js` to use in the constructor
 
@@ -198,11 +159,6 @@ This button will download the before and after screenshot and the JSON with the
 regions which can then be copied to a directory in `test` and becomes a test
 case. This will be useful to debug the frames which have patches which overlap
 for some reason.
-
-#### Fix the last screenshot generating broken in the Electron `demo` app
-
-It won't preview correctly in VS Code and Sharp crashes parsing it. It probably
-doesn't serialize fast enough to disk as the Electron process exits.
 
 #### Compare SVG size with GIF size with GZIP compression and without
 

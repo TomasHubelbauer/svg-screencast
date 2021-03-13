@@ -50,7 +50,7 @@ async function* screenshots() {
         }
 
         // Get the image data of the patch
-        const imageData = context.getImageData(patch.left, patch.top, patch.width, patch.height);
+        const imageData = context.getImageData(patch.x, patch.y, patch.width, patch.height);
         const _imageData = context.getImageData(0, 0, width, height);
 
         // Resize the canvas to the patch size

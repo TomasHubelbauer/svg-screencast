@@ -47,9 +47,9 @@ export default async function* screencast(/** @type {() => AsyncGenerator<Screen
       yield `<style>._${frame} { animation: _ 0ms ${stamp - _stamp}ms forwards; }</style>\n`;
 
       for (const patch of patches) {
-        const { left, top, width, height } = patch;
+        const { x, y, width, height } = patch;
         const buffer = await crop(patch);
-        yield `<image class="_${frame}" x="${left}" y="${top}" width="${width}" height="${height}" href="data:image/${format};base64,${buffer.toString('base64')}"/>\n`;
+        yield `<image class="_${frame}" x="${x}" y="${y}" width="${width}" height="${height}" href="data:image/${format};base64,${buffer.toString('base64')}"/>\n`;
       }
 
       frame++;
