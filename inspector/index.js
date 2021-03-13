@@ -176,6 +176,11 @@ async function awaitChoice() {
     reject = _reject;
   });
 
+  if (location.hash) {
+    const svg = window.atob(location.hash.slice('#'.length));
+    resolve(svg);
+  }
+
   const input = document.getElementById('input');
   input.addEventListener('change', () => {
     if (input.files.length !== 1) {

@@ -37,14 +37,6 @@ Generators are programs which use SVG Screencast at their core, but produce the
 screencast from screenshots using platform-specific APIs for image manipulation
 (generating/capturing, cropping, saving etc.).
 
-Web-based tools can be accessed by serving this repository with a web server and
-clicking the respective link, e.g.:
-
-```
-python3 -m http.server
-# http://localhost:8000
-```
-
 ### Electron Generator
 
 ```sh
@@ -55,24 +47,15 @@ npx electron .
 The generated screencast is written into [`screencast.svg`](screencast.svg) and
 can be inspected with the [Inspector].
 
-### Browser Generator
+### Browser Generator / Converter / Inspector
 
-The generated screencast can be downloaded and inspected with the [Inspector].
+Web-based tools can be accessed by serving this repository with a web server and
+clicking the respective link, e.g.:
 
-### Converter
-
-The converter allows for extracting screenshots - frames - of a video and using
-them to generate a screencast. It is useful as a benchmark of both the fidelity
-and performance of SVG Screencast.
-
-The generated screencast can be downloaded and inspected with the [Inspector].
-
-### Inspector
-
-The inspector allows viewing transitions from one screenshot of the screencast
-to another and the patches that are applied to facilitate them.
-
-[Inspector]: #inspector
+```
+python3 -m http.server
+# http://localhost:8000
+```
 
 ### Tests
 

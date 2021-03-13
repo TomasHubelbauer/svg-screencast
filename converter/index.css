@@ -5,3 +5,7 @@ input {
 video, canvas, svg {
   max-height: 40vh;
 }
+
+a {
+  margin: 1ex;
+}

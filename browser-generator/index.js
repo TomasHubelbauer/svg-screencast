@@ -15,11 +15,18 @@ window.addEventListener('load', async () => {
   const svg = blobs.join('');
   document.body.innerHTML += svg;
 
-  const a = document.createElement('a');
-  a.textContent = 'Download';
-  a.download = 'screencast.svg';
-  a.href = 'data:text/xml;base64,' + window.btoa(svg);
-  document.body.append(a);
+  const base64 = window.btoa(svg);
+
+  const downloadA = document.createElement('a');
+  downloadA.textContent = 'Download';
+  downloadA.download = 'screencast.svg';
+  downloadA.href = 'data:text/xml;base64,' + base64;
+  document.body.append(downloadA);
+
+  const inspectA = document.createElement('a');
+  inspectA.textContent = 'Inspect';
+  inspectA.href = '../inspector#' + base64;
+  document.body.append(inspectA);
 });
 
 async function* screenshots() {
