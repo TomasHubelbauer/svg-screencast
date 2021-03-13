@@ -1,4 +1,6 @@
 window.addEventListener('load', async () => {
+  document.body.addEventListener('click', () => document.querySelector('input[type="range"]')?.focus());
+
   const svg = await awaitChoice();
   const doc = new DOMParser().parseFromString(svg, 'text/xml');
 
