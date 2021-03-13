@@ -104,6 +104,8 @@ possible to remove in `package.json`.
 - Detect parts of patches which are solid color rectangles and break down the
   patch into several such that the solid color rectangle becomes an SVG element
   and not image data if the total SVG string length savings are worth it
+- Remove patches which negated themselves instead of replacing with the original
+  background (must check that the considered area was not used by other patches)
 
 #### See if playback looping would be possible to do in the CSS animation
 
