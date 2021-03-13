@@ -2,6 +2,12 @@ body {
   font-family: monospace;
 }
 
+a {
+  display: block;
+  font: icon;
+  margin: 1em;
+}
+
 input {
   width: 100%;
 }

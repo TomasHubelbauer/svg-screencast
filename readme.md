@@ -150,7 +150,7 @@ fragile. This functionality can already be supported by just loading up a bunch
 of screenshots, but I wonder what could be done to make it also usable in real-
 time screenshot streaming.
 
-#### Add a *Make test case* button to the Inspector to download before and after
+#### Hook up the *Download test* link in the Inspector so that it works
 
 This button will download the before and after screenshot and the JSON with the
 regions which can then be copied to a directory in `test` and becomes a test

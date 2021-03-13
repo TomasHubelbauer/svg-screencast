@@ -98,6 +98,15 @@ window.addEventListener('load', async () => {
     div.append(await loadImg(canvas.toDataURL()));
     _div.append(div);
 
+    _div.append(img.naturalWidth + 'x' + img.naturalHeight);
+
+    if (count > 0) {
+      const a = document.createElement('a');
+      a.textContent = 'Download test';
+      a.addEventListener('click', () => alert('TODO: Download before.png, after.png, patch-n.png and patch-n.json to make a test case'));
+      _div.append(a);
+    }
+
     const frame = frames[count - 1];
     if (frame) {
       for (const patch of frame.patches) {
