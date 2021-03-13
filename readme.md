@@ -76,17 +76,8 @@ to another and the patches that are applied to facilitate them.
 
 ### Tests
 
-To run tests:
-
-```sh
-cd test
-npm install
-for f in *.test.js;
-do
-  echo "$f"
-  node $f
-done
-```
+To run a particular test, go to `test/$test` and run `node .`. To run all tests,
+refer to [`test.yml`](.github/workflows/test.yml).
 
 ### To-Do
 

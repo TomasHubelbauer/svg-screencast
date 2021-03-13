@@ -15,8 +15,14 @@ jobs:
         # Run all test scripts
         cd test
         npm install
-        for f in *.test.js;
+        for d in */ ;
         do
-          echo "$f"
-          node $f
+          if [ $d = "node_modules/" ]; then
+            continue
+          fi
+
+          echo $d
+          cd $d
+          node .
+          cd ..
         done
