@@ -2,7 +2,7 @@
 
 ![](https://github.com/tomashubelbauer/svg-screencast/actions/workflows/test.yml/badge.svg)
 
-![](demo.svg)
+![](screencast.svg)
 
 SVG Screencast is a project which generates animated SVG files by using CSS
 animations to reveal elements. Feed it an array of screenshots and stamps and it
@@ -40,8 +40,8 @@ cd node-generator
 npx electron .
 ```
 
-The generated screencast is written into [`demo.svg`](demo.svg) and can be
-inspected with the [Inspector].
+The generated screencast is written into [`screencast.svg`](screencast.svg) and
+can be inspected with the [Inspector].
 
 ### Browser Generator
 

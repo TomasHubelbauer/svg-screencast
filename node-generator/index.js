@@ -26,7 +26,7 @@ export default async function (electron) {
   }
 
   const marker = '<image class="_';
-  const stream = fs.createWriteStream('../demo.svg');
+  const stream = fs.createWriteStream('../screencast.svg');
   for await (const buffer of screencast(screenshots)) {
     stream.write(buffer);
     if (buffer.startsWith(marker)) {

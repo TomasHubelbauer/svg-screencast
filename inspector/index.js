@@ -168,7 +168,7 @@ async function awaitChoice() {
 
   const button = document.getElementById('button');
   button.addEventListener('click', async () => {
-    const svg = await fetch('../demo.svg').then(response => response.text());
+    const svg = await fetch('../screencast.svg').then(response => response.text());
     input.remove();
     button.remove();
     resolve(svg);
