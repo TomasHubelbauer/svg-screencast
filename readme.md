@@ -16,17 +16,60 @@ Not ready for general use yet, if interested, check out [Development] below.
 
 ## Features
 
-- Allows accepting screenshots either ahead of time (bulk) or streamed real-time
-- Updates the changed regions only (primitive pixel-diff algorithm as of now)
-- Produces SVGs playable in MarkDown/SVG preview on GitHub and in VS Code
-- Uses standard SVG and CSS features resulting in great support (even Safari)
+### Allows the caller to provide screenshots in real time or bulk using the API
 
-## Limitations
+SVG Screencast has only a single argument: an asynchronous iterator providing
+screenshots as quickly or slowly as the caller wants. This supports both ahead
+of time (bulk) and real-time usages.
 
-- Does not produce minimal file sizes yet, a smarter algorithm is in the works
-- Does not have interactivity of any kind (play/pause, restart, fade scrubbar
-  based on pointer hover), SVG embedded through `img` won't run JavaScript
-- Does not show the mouse cursor at the moment (a solution is in the works tho)
+### Updates the changed regions only (basic optimizations done, advanced WIP)
+
+SVG Screencast optimizes the generated file size by using an algorithm for
+change detection in the screenshots which results in small patches from one
+screenshot to the next instead of a whole screenshot each time, ultimately
+resulting in small file sizes.
+
+More improvements to the motion detection algorithm are underway.
+
+### Produces SVGs playable in MarkDown/SVG preview on GitHub and in VS Code
+
+The support for SVG Screencast generated files is great, you can essentially use
+the generated files wherever an image is accepted in MarkDown or HTML documents.
+
+### Uses standard SVG and CSS features resulting in great support (even Safari)
+
+SVG Screencast deliberately uses only the most basic SVG and CSS features
+ensuring that support for the general files is wide and stable.
+
+### Produces very nicely compressible text files taking little space to transmit
+
+The SVG format is a text-based one and that makes it very suitable for GZIP
+compression utilized by many web servers today. Normally, a SVG Screencast file
+will take only half its size to transmit over the network when compressed.
+
+## Non-Goals / Limitations
+
+### Does not offer screen recording or video conversion out of the box by design
+
+SVG Screencast has a video conversion tool in its developer tools, but it is
+only rudimentary. Officially, it is recommended to pre-process the source media
+into screenshots either ahead of time or on the fly using a dedicated and well
+suited tool.
+
+### Does not produce minimal file sizes yet, a smarter algorithm is in the works
+
+Advanced motion detection algorithm is in the works. Also, more things than are
+currently done will be possible to do using animations instead of patches, which
+will also improve file size even further.
+
+### Does not have interactivity of any kind (play/pause, restart, fade scrubbar)
+
+The SVG Screencast generated files should be thought of as images, not videos,
+so they do not offer any UI or interactivity. They also do not support sounds.
+
+This is both a design choice and a technical limitation, as SVGs embedded thru
+an `img` element will not run JavaScript - they have to be embedded directly in
+the HTML for that.
 
 ## Development
 
@@ -128,14 +171,6 @@ them available for a guaranteed interval in case of fast typing / shortcut use.
 This whole problem generalizes to intertwining custom elements with the frames,
 the approaches needed to support cursor and keystrokes are probable capable such
 that they could also support custom annotations of any kind, so look into that.
-
-#### Build a full-screen recorder by using the platform screenshot capture API
-
-I tried to use FFI and GYP, but it's so stupidly non-straightforward to install
-that I have given up on it. It is not worth figuring it out, because it is too
-fragile. This functionality can already be supported by just loading up a bunch
-of screenshots, but I wonder what could be done to make it also usable in real-
-time screenshot streaming.
 
 #### Compare SVG size with GIF size with GZIP compression and without
 
