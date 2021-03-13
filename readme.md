@@ -84,7 +84,7 @@ done
 
 ### To-Do
 
-### Simplify `node-generator` once Electron supports ESM entry point
+#### Simplify `node-generator` once Electron supports ESM entry point
 
 `main.cjs` will then be possible to merge into `index.js` and `main` will be
 possible to remove in `package.json`.
