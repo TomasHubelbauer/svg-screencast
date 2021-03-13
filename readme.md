@@ -139,8 +139,8 @@ time screenshot streaming.
 
 #### Compare SVG size with GIF size with GZIP compression and without
 
-Find a way to serve the files with compression and use the browser developer
-tools numbers to get the compression data.
+Use FFMPEG to generate a GIF of the same scene as the SVG screencast is showing
+and capture the sizes of both as well as their GZIPped sizes using:
 
 ```sh
 npx gzip-size-cli screencast.svg
