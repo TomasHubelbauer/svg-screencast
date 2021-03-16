@@ -87,8 +87,7 @@ cd electron-generator
 npx electron .
 ```
 
-The generated screencast is written into [`screencast.svg`](screencast.svg) and
-can be inspected with the [Inspector].
+The generated screencast is written into [`screencast.svg`](screencast.svg).
 
 ### Browser Generator / Converter / Inspector
 
