@@ -109,16 +109,26 @@ node .
 
 ### To-Do
 
+#### Speed up `optimize.js` and make it runnable as a post-processing step
+
+Right now it is too slow and if considering more than two patches during the
+real time encoding, it gets stuck so bad, it makes the resulting screencast
+strutter. Until I can get it fast enough for the real-time use-case, let's
+make it into a post-processing step working directly on the SVG instead, so
+that it can be as unoptimized as necessary without hurting the real-time
+encoding performance.
+
 #### Simplify `node-generator` once Electron supports ESM entry point
 
 `main.cjs` will then be possible to merge into `index.js` and `main` will be
 possible to remove in `package.json`.
 
+#### Consider the whole SVG string not just the data URL part in `optimize.js`
+
+#### Return a whole new frame in `optimize.js` if better than the shortest patch
+
 #### Add an optimization pass that would run after the patching and minimize
 
-- For each frame, check the patches, their total SVG string length and see if
-  merging them group-wise recursively finds a combination which is smaller than
-  the individual patches
 - Detect patches which are just horizontal/vertical shifts of some rectangular
   area and represent them using an SVG animation instead of the patches
   - Add support for detecting cropping to enable animation of content moved by

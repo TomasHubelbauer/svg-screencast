@@ -25,9 +25,10 @@ export default async function (electron) {
     }
   }
 
+  const optimized = false;
   const marker = '<image class="_';
-  const stream = fs.createWriteStream('../screencast.svg');
-  for await (const buffer of screencast(screenshots)) {
+  const stream = fs.createWriteStream(optimized ? '../screencast-optimized.svg' : '../screencast.svg');
+  for await (const buffer of screencast(screenshots, optimized)) {
     stream.write(buffer);
     if (buffer.startsWith(marker)) {
       console.log(buffer.slice(marker.length, buffer.indexOf('"', marker.length)));

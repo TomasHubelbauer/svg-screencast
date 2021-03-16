@@ -1,9 +1,9 @@
+import optimize from './optimize.js';
 import patch from './patch.js';
 
-/** @typedef {(x: number, y: number, width: number, height: number) => Promise<Buffer>} Crop */
 /** @typedef {{ stamp: Date; buffer: Buffer; width: number; height: number; format: string; crop: Crop; }} Screenshot */
 
-export default async function* screencast(/** @type {() => AsyncGenerator<Screenshot>} */ screenshots) {
+export default async function* screencast(/** @type {() => AsyncGenerator<Screenshot>} */ screenshots, optimized = false) {
   let frame = 0;
 
   /** @type {Date} */
@@ -36,13 +36,12 @@ export default async function* screencast(/** @type {() => AsyncGenerator<Screen
       throw new Error(`Screenshot stamp ${stamp} is not chronological with respect to baseline ${_stamp}.`);
     }
 
-    // TODO: Make the `patch` implementation configurable and develop alternatives.
-    // Keep merging overlapping, touching and maybe even nearby regions and keeping
-    // the merged region if the resulting SVG string of the merged region is shorter
-    // than the combined SVG string of the two individual regions. Signal insertion
-    // of an entire frame where patching the damage would result in a longer SVG
-    // string than placing the frame in as a whole
-    const patches = patch(width, height, buffer, _screenshot.buffer);
+    // TODO: Implement doing this in real time as well as a post-processing step
+    const patches = optimized
+      ? await optimize(patch(width, height, buffer, _screenshot.buffer), crop)
+      : patch(width, height, buffer, _screenshot.buffer)
+      ;
+
     if (patches.length > 0) {
       yield `<style>._${frame} { animation: _ 0ms ${stamp - _stamp}ms forwards; }</style>\n`;
 
