@@ -57,6 +57,7 @@ export default function patch(/** @type {number} */ width, /** @type {number} */
             case 'touch-br': region.bottom++; region.right++; break;
             case 'touch-b': region.bottom++; break;
             case 'touch-bl': region.bottom++; region.left--; break;
+            case 'touch-l': region.left--; break;
             case 'touch-tl': region.top--; region.left--; break;
             case 'cross': break;
             default: throw new Error(`Unexpected relationship '${relationship}'!`);
