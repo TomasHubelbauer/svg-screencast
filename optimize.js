@@ -24,7 +24,8 @@ export default async function optimize(/** @type {Patch[]} */ patches, /** @type
     total += url.length;
   }
 
-  const combinations = combine(patches);
+  // TODO: Run this in some sort of a worker to not need to use `setImmediate`
+  const combinations = await combine(patches);
   for (const combination of combinations) {
     if (combination.merged.length === 1) {
       combination.patch = combination.merged[0];
@@ -45,6 +46,9 @@ export default async function optimize(/** @type {Patch[]} */ patches, /** @type
     if (combination.rest.length > 0) {
       combination.length += combination.rest.reduce((length, patch) => length + urls.get(patch).length, 0);
     }
+
+    // Allow the thread to server other code such as screenshot caching
+    await new Promise(resolve => setImmediate(resolve));
   }
 
   const length = Math.min(...combinations.map(combo => combo.length));
@@ -60,7 +64,7 @@ export default async function optimize(/** @type {Patch[]} */ patches, /** @type
   return [combination.patch, ...combination.rest];
 }
 
-function combine(/** @type {Array} */ array, index = 0, current = [], accumulator = []) {
+async function combine(/** @type {Array} */ array, index = 0, current = [], accumulator = []) {
   if (array.slice(index).length === 0) {
     if (current.length === 0) {
       return;
@@ -70,7 +74,10 @@ function combine(/** @type {Array} */ array, index = 0, current = [], accumulato
     return accumulator;
   }
 
-  combine(array, index + 1, [...current, array[index]], accumulator);
-  combine(array, index + 1, [...current], accumulator);
+  // Allow the thread to server other code such as screenshot caching
+  await new Promise(resolve => setImmediate(resolve));
+
+  await combine(array, index + 1, [...current, array[index]], accumulator);
+  await combine(array, index + 1, [...current], accumulator);
   return accumulator;
 }

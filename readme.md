@@ -19,27 +19,27 @@ Not ready for general use yet, if interested, check out [Development] below.
 ### Allows the caller to provide screenshots in real time or bulk using the API
 
 SVG Screencast has only a single argument: an asynchronous iterator providing
-screenshots as quickly or slowly as the caller wants. This supports both ahead
-of time (bulk) and real-time usages.
+screenshots as quickly or slowly as the caller wants. The stamps of the frames
+are independent of real-time and if the caller provides screenshots faster than
+SVG screencast can process them, a runtime cache will hold onto them so that
+they all get processed in order eventually.
 
-### Updates the changed regions only (basic optimizations done, advanced WIP)
+### Determines and replaces the damange area with shortest SVG representation
 
 SVG Screencast optimizes the generated file size by using an algorithm for
 change detection in the screenshots which results in small patches from one
-screenshot to the next instead of a whole screenshot each time, ultimately
-resulting in small file sizes.
+screenshot to the next instead of a whole screenshot each time. Additionally,
+SVG Screencast will look for combinations of patches whose cummulative sizes
+are smaller than the individual patches, ensuring the optimal combination is
+chosen, resulting in a small file size.
 
 More improvements to the motion detection algorithm are underway.
 
-### Produces SVGs playable in MarkDown/SVG preview on GitHub and in VS Code
-
-The support for SVG Screencast generated files is great, you can essentially use
-the generated files wherever an image is accepted in MarkDown or HTML documents.
-
-### Uses standard SVG and CSS features resulting in great support (even Safari)
+### Produces SVGs than play in HTML and in GitHub & VS Code MarkDown/SVG preview
 
 SVG Screencast deliberately uses only the most basic SVG and CSS features
-ensuring that support for the general files is wide and stable.
+ensuring that support for the general files is wide and stable. You can use the
+generated SVGs wherever an image is accepted in MarkDown or HTML documents.
 
 ### Produces very nicely compressible text files taking little space to transmit
 
@@ -55,12 +55,6 @@ SVG Screencast has a video conversion tool in its developer tools, but it is
 only rudimentary. Officially, it is recommended to pre-process the source media
 into screenshots either ahead of time or on the fly using a dedicated and well
 suited tool.
-
-### Does not produce minimal file sizes yet, a smarter algorithm is in the works
-
-Advanced motion detection algorithm is in the works. Also, more things than are
-currently done will be possible to do using animations instead of patches, which
-will also improve file size even further.
 
 ### Does not have interactivity of any kind (play/pause, restart, fade scrubbar)
 
@@ -109,14 +103,12 @@ node .
 
 ### To-Do
 
-#### Speed up `optimize.js` and make it runnable as a post-processing step
+#### Run the encoding in a worker to not stutter the capturing on main thread
 
-Right now it is too slow and if considering more than two patches during the
-real time encoding, it gets stuck so bad, it makes the resulting screencast
-strutter. Until I can get it fast enough for the real-time use-case, let's
-make it into a post-processing step working directly on the SVG instead, so
-that it can be as unoptimized as necessary without hurting the real-time
-encoding performance.
+I've inserted a few `setImmediate`s to make sure the main thread is not hogged
+by the encoding all of the time, but the real solution is to decouple the main
+thread capturing and the encoding by using a different thread, or in Node land,
+by using a worker for the whole of encoding.
 
 #### Simplify `node-generator` once Electron supports ESM entry point
 

@@ -12,7 +12,12 @@ export default async function* screencast(/** @type {() => AsyncGenerator<Screen
   /** @type {Screenshot} */
   let _screenshot;
 
-  for await (const screenshot of screenshots()) {
+  // Allow passing in both a generator function and a generator object
+  if (typeof screenshots === 'function') {
+    screenshots = screenshots();
+  }
+
+  for await (const screenshot of screenshots) {
     const { stamp, width, height, format, buffer, crop } = screenshot;
 
     // Write header and poster on initial screenshot
