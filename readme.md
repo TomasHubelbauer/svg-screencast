@@ -103,6 +103,14 @@ node .
 
 ### To-Do
 
+#### Make runnable through a CLI for video to screencast conversion feature
+
+Reuse the `electron-generator` code to build a feature where when called using
+`npm tomashubelbauer/svg-screencast screencast.mp4`, a `screencast.svg` file
+would get generated in the same directory. Maybe also generate `screencast.html`
+which would be the `inspector` application with the SVG pre-loaded or hard-coded
+in it for debugging. This will make this project useful as a CLI tool.
+
 #### Run the encoding in a worker to not stutter the capturing on main thread
 
 I've inserted a few `setImmediate`s to make sure the main thread is not hogged
