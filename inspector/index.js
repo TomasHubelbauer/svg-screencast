@@ -84,7 +84,7 @@ window.addEventListener('load', async () => {
     }
 
     rendering = true;
-    _div.innerHTML = `${count}/${frames.length}`;
+    _div.innerHTML = '';
 
     const img = await loadImg(image);
 
@@ -99,6 +99,7 @@ window.addEventListener('load', async () => {
     let _img;
 
     const div = document.createElement('div');
+    div.className = 'previews';
     if (count === 1) {
       div.append(await loadImg(canvas.toDataURL(), 'before'));
     }
@@ -117,7 +118,25 @@ window.addEventListener('load', async () => {
     div.append(await loadImg(canvas.toDataURL(), count > 0 ? 'after' : ''));
     _div.append(div);
 
-    _div.append(img.naturalWidth + 'x' + img.naturalHeight);
+    const sizeDiv = document.createElement('div');
+    sizeDiv.textContent = img.naturalWidth + '×' + img.naturalHeight;
+
+    const frameDiv = document.createElement('div');
+    frameDiv.textContent = `${count}/${frames.length}`;
+
+    const stampDiv = document.createElement('div');
+    if (count > 0) {
+      const stamp = frames[count - 1].stamp;
+      const seconds = Math.floor(stamp / 1000);
+      const minutes = Math.floor(seconds / 1000 / 60);
+      const milliseconds = stamp - seconds * 1000;
+      stampDiv.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${milliseconds.toString().padStart(3, '0')}`;
+    }
+    else {
+      stampDiv.textContent = '00:00.000';
+    }
+
+    _div.append(sizeDiv, frameDiv, stampDiv);
 
     if (count > 0) {
       const button = document.createElement('button');

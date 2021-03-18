@@ -17,7 +17,7 @@ div {
 }
 
 @media (orientation: landscape) {
-  div > div {
+  div.previews {
     display: flex;
   }
 }
@@ -25,7 +25,6 @@ div {
 img {
   box-shadow: 1px 1px 2px 2px rgba(0, 0, 0, .1);
 }
-
 
 @media (orientation: landscape) {
   img {
