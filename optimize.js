@@ -5,6 +5,7 @@
 // shortest total SVG string length
 // TODO: Account for the whole SVG string length not just the WIP data URL part
 // TODO: Return a patch for a whole new frame if its size is shorter than patch
+/** @returns {Promise<Patch[]>} */
 export default async function optimize(/** @type {Patch[]} */ patches, /** @type {Crop} */ crop) {
   // Ignore frames between which no changed had occured
   if (patches.length === 0) {
@@ -22,6 +23,13 @@ export default async function optimize(/** @type {Patch[]} */ patches, /** @type
     const url = (await crop(patch)).toString('base64');
     urls.set(patch, url);
     total += url.length;
+  }
+
+  // TODO: Figure out heuristics to try a subset of the combinations at least
+  // (E.g.: smallest few patches? closest few patches? largest area patches?)
+  if (patches.length > 8) {
+    console.log('too many patches to try combinations', patches);
+    return patches;
   }
 
   // TODO: Run this in some sort of a worker to not need to use `setImmediate`
@@ -60,7 +68,7 @@ export default async function optimize(/** @type {Patch[]} */ patches, /** @type
 
   const combination = combinations.find(combination => combination.length === length);
 
-  console.log(`${patches.length} merged to ${combination.rest.length + 1} (lengths: ${total} > ${combination.length} [${~~((combination.length / total) * 100)}])`);
+  console.log(`${patches.length} merged to ${combination.rest.length + 1} (lengths: ${total} > ${combination.length} [${~~((combination.length / total) * 100)} %])`);
   return [combination.patch, ...combination.rest];
 }
 

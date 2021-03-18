@@ -2,7 +2,7 @@
 
 ![](https://github.com/tomashubelbauer/svg-screencast/actions/workflows/test.yml/badge.svg)
 
-![](screencast.svg)
+![](screencast-worker.svg)
 
 SVG Screencast is a project which generates animated SVG files by using CSS
 animations to reveal elements. Feed it an array of screenshots and stamps and it
@@ -22,7 +22,13 @@ SVG Screencast has only a single argument: an asynchronous iterator providing
 screenshots as quickly or slowly as the caller wants. The stamps of the frames
 are independent of real-time and if the caller provides screenshots faster than
 SVG screencast can process them, a runtime cache will hold onto them so that
-they all get processed in order eventually.
+they all get processed in order eventually without stutter.
+
+### Offers an option to do the heavy lifting in a worker (Node-only for now)
+
+SVG Screencast can work in a mode where it runs in a worker thread, preventing
+the main thread from resource starvating even in cases where the SVG Screencast
+algorithm does some heavy lifting. Web Worker support is on the roadmap.
 
 ### Determines and replaces the damange area with shortest SVG representation
 
@@ -83,6 +89,17 @@ npx electron .
 
 The generated screencast is written into [`screencast.svg`](screencast.svg).
 
+### Electron Generator (Worker)
+
+```sh
+cd electron-generator-worker
+npx electron .
+```
+
+The generated screencast is written into [`screencast-worker.svg`](screencast-worker.svg).
+
+This generator runs the `screencast.js` code in a Node worker thread.
+
 ### Browser Generator / Converter / Inspector
 
 Web-based tools can be accessed by serving this repository with a web server and
@@ -101,6 +118,8 @@ npm install
 node .
 ```
 
+Manual testing is used to ensure no regressions in areas not covered by tests.
+
 ### To-Do
 
 #### Make runnable through a CLI for video to screencast conversion feature
@@ -111,12 +130,9 @@ would get generated in the same directory. Maybe also generate `screencast.html`
 which would be the `inspector` application with the SVG pre-loaded or hard-coded
 in it for debugging. This will make this project useful as a CLI tool.
 
-#### Run the encoding in a worker to not stutter the capturing on main thread
+#### Clean up the Node worker implementation and add some API usage examples
 
-I've inserted a few `setImmediate`s to make sure the main thread is not hogged
-by the encoding all of the time, but the real solution is to decouple the main
-thread capturing and the encoding by using a different thread, or in Node land,
-by using a worker for the whole of encoding.
+#### Extend the worker implementation to also support web workers for parity
 
 #### Simplify `node-generator` once Electron supports ESM entry point
 

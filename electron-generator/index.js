@@ -32,7 +32,7 @@ export default async function (electron) {
   const marker = '<image class="_';
   const stream = fs.createWriteStream('../screencast.svg');
   const _cache = {};
-  for await (const buffer of screencast(cache(screenshots, _cache), optimized)) {
+  for await (const buffer of screencast(cache(screenshots, _cache))) {
     stream.write(buffer);
     if (buffer.startsWith(marker)) {
       console.log(buffer.slice(marker.length, buffer.indexOf('"', marker.length)), '|'.repeat(_cache.overhead));
