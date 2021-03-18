@@ -136,7 +136,12 @@ window.addEventListener('load', async () => {
       stampDiv.textContent = '00:00.000';
     }
 
-    _div.append(sizeDiv, frameDiv, stampDiv);
+    const patchDiv = document.createElement('div');
+    if (count > 0) {
+      patchDiv.textContent = frames[count - 1].patches.length + (frames[count - 1].patches.length === 1 ? ' patch' : ' patches');
+    }
+
+    _div.append(sizeDiv, frameDiv, stampDiv, patchDiv);
 
     if (count > 0) {
       const button = document.createElement('button');
@@ -148,7 +153,9 @@ window.addEventListener('load', async () => {
     const frame = frames[count - 1];
     if (frame) {
       for (const patch of frame.patches) {
-        _div.append(`${patch.x}×${patch.y} (${patch.width}x${patch.height}):`);
+        const patchDiv = document.createElement('div');
+        patchDiv.textContent = `${patch.x}×${patch.y} (${patch.width}x${patch.height})`;
+        _div.append(patchDiv);
 
         const _canvas = document.createElement('canvas');
         _canvas.width = patch.width;
