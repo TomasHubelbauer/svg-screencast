@@ -15,26 +15,39 @@ export default async function (electron) {
     event.preventDefault();
   });
 
-  // TODO: Replace with a buffer cache
-  const screenshotCache = [];
+  let load = defer();
+  let frames;
+  let frame = 0;
+  let screenshot;
   electron.ipcMain.on('screenshot', (_event, arg) => {
-    if (arg === null) {
-      done = true;
-      return;
+    switch (arg?.type) {
+      case 'load': {
+        frames = arg.frames;
+        load.resolve();
+        break;
+      }
+      case 'end': {
+        done = true;
+        break;
+      }
+      case 'frame': {
+        screenshot.resolve(arg);
+        break;
+      }
     }
-
-    screenshotCache.push({ arrayBuffer: arg, stamp: new Date() });
   });
 
   async function* screenshots() {
     while (!done) {
-      // TODO: Replace with a buffer cache
-      if (screenshotCache.length === 0) {
-        await new Promise(resolve => setTimeout(resolve, 100));
-        continue;
+      if (frame === frames) {
+        break;
       }
 
-      const { arrayBuffer, stamp } = screenshotCache.shift();
+      screenshot = defer();
+      window.webContents.send('screenshot', { type: 'screenshot', frame });
+      const { arrayBuffer, stamp, frame: _frame } = await screenshot.promise;
+      frame++;
+      console.log(`${frame}/${frames}: ${~~((frame / frames) * 100)} %`);
       const nativeImage = electron.nativeImage.createFromBuffer(Buffer.from(arrayBuffer));
       const buffer = nativeImage.toBitmap();
       const { width, height } = await nativeImage.getSize();
@@ -43,15 +56,24 @@ export default async function (electron) {
     }
   }
 
-  const marker = '<image class="_';
-  const stream = fs.createWriteStream('../screencast-converted.svg');
+  await load.promise;
+
+  const stream = fs.createWriteStream('sample.svg');
   for await (const buffer of screencast(screenshots)) {
     stream.write(buffer);
-    if (buffer.startsWith(marker)) {
-      console.log(buffer.slice(marker.length, buffer.indexOf('"', marker.length)), '|'.repeat(screenshotCache.length));
-    }
   }
 
   stream.close();
   process.exit();
+}
+
+function defer() {
+  let resolve;
+  let reject;
+  const promise = new Promise((_resolve, _reject) => {
+    resolve = _resolve;
+    reject = _reject;
+  });
+
+  return { resolve, reject, promise };
 }

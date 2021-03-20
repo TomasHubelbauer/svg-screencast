@@ -107,8 +107,6 @@ cd electron-converter
 npx electron .
 ```
 
-The generated screencast is written into [`screencast-converted.svg`](screencast-converted.svg).
-
 ### Browser Generator / Converter / Inspector
 
 Web-based tools can be accessed by serving this repository with a web server and
@@ -130,8 +128,6 @@ node .
 Manual testing is used to ensure no regressions in areas not covered by tests.
 
 ### To-Do
-
-#### Change `electron-converter` IPC communication to sync for frames on demand
 
 #### Make runnable through a CLI for video to screencast conversion feature
 

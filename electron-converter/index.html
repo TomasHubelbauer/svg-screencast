@@ -3,9 +3,9 @@
   <head>
     <meta charset="utf-9" />
     <script>
-      window.addEventListener('load', async () => {
+      window.addEventListener('load', () => {
         let seek;
-        const fps = 24;
+        const fps = 10;
 
         const video = document.querySelector('video');
         const canvas = document.querySelector('canvas');
@@ -20,16 +20,21 @@
         canvas.height = video.videoHeight;
 
         const frames = ~~(video.duration * fps);
-        for (let index = 0; index < frames; index++) {
+        window.addEventListener('message', async event => {
+          if (event.data.type !== 'screenshot') {
+            return;
+          }
+
+          const frame = event.data.frame;
           seek = defer();
-          video.currentTime = index / fps;
+          video.currentTime = frame / fps;
           await seek.promise;
           const blobDeferred = defer();
           canvas.toBlob(blob => blobDeferred.resolve(blob));
-          window.postMessage(await (await blobDeferred.promise).arrayBuffer());
-        }
+          window.postMessage({ type: 'frame', frame, stamp: video.currentTime * 1000, arrayBuffer: await (await blobDeferred.promise).arrayBuffer() });
+        });
 
-        window.postMessage(null);
+        window.postMessage({ type: 'load', frames });
       });
 
       function defer() {

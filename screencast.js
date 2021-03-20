@@ -49,7 +49,7 @@ export default async function* screencast(/** @type {() => AsyncGenerator<Screen
 
     const patches = await optimize(patch(width, height, buffer, _screenshot.buffer), crop);
     if (patches.length > 0) {
-      yield `<style>._${frame} { animation: _ 0ms ${stamp - _stamp}ms forwards; }</style>\n`;
+      yield `<style>._${frame} { animation: _ 0ms ${~~(stamp - _stamp)}ms forwards; }</style>\n`;
 
       for (const patch of patches) {
         const { x, y, width, height } = patch;

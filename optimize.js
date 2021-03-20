@@ -17,19 +17,19 @@ export default async function optimize(/** @type {Patch[]} */ patches, /** @type
     return patches;
   }
 
+  // TODO: Figure out heuristics to try a subset of the combinations at least
+  // (E.g.: smallest few patches? closest few patches? largest area patches?)
+  if (patches.length > 5) {
+    //console.log('too many patches to try combinations', patches);
+    return patches;
+  }
+
   let total = 0;
   const urls = new Map();
   for (const patch of patches) {
     const url = (await crop(patch)).toString('base64');
     urls.set(patch, url);
     total += url.length;
-  }
-
-  // TODO: Figure out heuristics to try a subset of the combinations at least
-  // (E.g.: smallest few patches? closest few patches? largest area patches?)
-  if (patches.length > 8) {
-    console.log('too many patches to try combinations', patches);
-    return patches;
   }
 
   // TODO: Run this in some sort of a worker to not need to use `setImmediate`
