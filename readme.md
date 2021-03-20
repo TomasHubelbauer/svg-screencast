@@ -127,7 +127,124 @@ node .
 
 Manual testing is used to ensure no regressions in areas not covered by tests.
 
+### `screencast.js`
+
+This file implements the logic for generating the SVG string with image Base64
+data URLs and CSS animations. Technically, animating an array of full-size
+screenshots to show up one after another would suffice as an SVG screencast,
+but since the intended use for this tool is screen recording conversion, we can
+do more:
+
+### `patch.js`
+
+This file implements an algorithm which looks at the RGBA data between the two
+screenshots and calculates rectangular, non-overlapping regions of changed
+pixels.
+
+- Extend regions touched by the changed pixel in the direction of the pixel
+- Do nothing for changed pixels which already fall within an existing region
+- Create a new region for changed pixels which do not intersect existing regions
+
+The end result here is an array of regions which need to change from one frame
+to the other to complete the transition. This is the simplest optimization pass
+possible after merely animating full-size screenshots to appear one after the
+other.
+
+### `optimize.js`
+
+This file implements a pass which attempts to optimize the patches calculated in
+the prior step for smaller file size. It is separate from `patch.js` because the
+work in `patch.js` only depends on the RGBA array of the two screenshots, but in
+here, some of the steps also need to consider the SVG string length of would-be
+regions which is done by cropping out the new RGBA of the region, encoding it to
+PNG, converting the PNG to Base64 and prepending Data URL metadata. When used in
+a worker, this requires marshalling potentially large structures across the
+boundary (cropping the image) and the steps here which works on combinations of
+patches can generate quite a large number of combinations which also costs extra
+execution time. Some of the steps here could and maybe will be moved to the
+`patch.js` pass eventually, but generally this file hosts more complicated or
+costly optimizations or optimizations whose impact is more strongly dependant on
+the features in the screenshots.
+
+#### Implemented
+
+**Merging patches of smaller combined SVG length:** This step combines patches
+in various ways and sees if the combined patches, if they were a single patch,
+would have a smaller SVG string length than if the individual patches were all
+placed separately to the SVG. The SVG string length of the combined patch is
+calculated by cropping out its would-be region, encoding it to PNG and taking a
+Base64 of that and seeing if the resulting Data URL is shorter than the total
+length of the Data URLs of the individual patches. It doesn't take the `image`
+element SVG string length into an account yet, so improvements could be made.
+It also combines the patches in a weird way, it's basically a superset of the
+combinations of the patches iterated and for each of those combinations, they
+are merged into one and considered and the patches not in that combination
+remain standalone. The combination which is the shortest in terms of both the
+length of the combined patches' SVG length and the sum of the remaining patches
+SVG lengths wins and is taken. Perhaps there is a better way to combine these?
+The calculation of the combinations and the SVG string lengths of the candidate
+merged patches is expensive, so this step is only allowed to run in case of 5
+patches of fewer.
+
+#### To-Do
+
+**Replacing found shorter patch with full-size screenshot if shorter:** It may
+happen that the patch combination logic finds a new combined patch whose SVG is
+shorter than the individual patches, but it is still larger than if a whole new
+frame was encoded - if so, return the new frame as a whole.
+
+**Replacing a single patch with a full-size screenshot if smaller:** If there is
+only a single patch, it might still happen that the SVG string of the full-size
+screenshot works out to be smaller than the single patch' SVG string. In that
+case, return the whole new frame.
+
+**Detecting patches which represent motion of a static area and animate it:** If
+the patches are determined to represent an area which is internally static, but
+in motion as a whole, we can skip the patch altogether and instead emit an
+animation instruction which would move the old patch of this are to the new
+location. This could track across frames. Might make sense to try and determine
+only horizontal and vertical detection if it is going to be too expensive to
+calculate otherwise. This will fail to determine things like a page scrolling,
+because the region of that is getting cropped at the same time as its innards
+are moving.
+
+**Detecting patches which represent cropping/scrolling and animate the crop:**
+Adding to the motion detection above, detecting things which are getting cropped
+(like a container with a scrollbar that is being scrolled) could be also useful,
+because the scroll+crop motion could also be represent-able using CSS animations
+and we could drop the patches representing this motion as a whole.
+
+**Detecting patches representing "uncropping" of a region and animating:** Like
+the motion detection and scroll detection ideas, this one too is about replacing
+patches with CSS animation. If a region stays constant and is progressively
+being expanded/unfolding like typing a text on a single line, we could instead
+just emit a patch for the whole final region (the whole line in this example)
+and animate its un-cropping using CSS. This could save a lot of patches in the
+few cases where it applies.
+
+**Detecting solid color sides or areas within patches and using rects:** Some
+changes might result in patches which contain area(s) of solid colors which
+might be replacible with rects. Breaking down a single big patch to a few small
+patches and a few `rect` usages might provide for a smaller file size.
+
+**Detecting unchanged areas in the bounds of a large patches:** In some cases,
+a patch will be created with its content being largely unchanged, for example in
+case of something changing a border, a patch would get created which would exist
+because of the border but all of its innards would be largely unchanged.
+Breaking such a patch down could significately decrease the size of the changes.
+
+**Reverting patches which have negated themselves later without interference:**
+In case of something like a popup window, which appears and disappears after a
+while, it might make sense to detect this and animate the patch to show and hide
+instead of replacing the are twice. This can only work if nothing else entered
+the area, otherwise undoing the patch would leave artifacts.
+
 ### To-Do
+
+#### Progress on the ideas for `optimize.js` documented in its section
+
+Consider the whole SVG string not just the data URL part in the already
+implemented combining logic.
 
 #### Add a parameter for configuring noise tolerance for better video diffing
 
@@ -154,27 +271,6 @@ in it for debugging. This will make this project useful as a CLI tool.
 
 `main.cjs` will then be possible to merge into `index.js` and `main` will be
 possible to remove in `package.json`.
-
-#### Consider the whole SVG string not just the data URL part in `optimize.js`
-
-#### Return a whole new frame in `optimize.js` if better than the shortest patch
-
-#### Add an optimization pass that would run after the patching and minimize
-
-- Detect patches which are just horizontal/vertical shifts of some rectangular
-  area and represent them using an SVG animation instead of the patches
-  - Add support for detecting cropping to enable animation of content moved by
-    a scrollbar
-- Detect patches which are progressive unfolding of a larger area, for example
-  like typing on a line, and animate that using a crop of a single, big patch
-  instead of the multiple individual patches
-- Detect parts of patches which are solid color rectangles and break down the
-  patch into several such that the solid color rectangle becomes an SVG element
-  and not image data if the total SVG string length savings are worth it
-  - Do the same for patches which have big areas which are all unchanged pixels
-    (like something changing border color but not content)
-- Remove patches which negated themselves instead of replacing with the original
-  background (must check that the considered area was not used by other patches)
 
 #### See if playback looping would be possible to do in the CSS animation
 
