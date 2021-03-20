@@ -100,6 +100,15 @@ The generated screencast is written into [`screencast-worker.svg`](screencast-wo
 
 This generator runs the `screencast.js` code in a Node worker thread.
 
+### Electron Converter
+
+```sh
+cd electron-converter
+npx electron .
+```
+
+The generated screencast is written into [`screencast-converted.svg`](screencast-converted.svg).
+
 ### Browser Generator / Converter / Inspector
 
 Web-based tools can be accessed by serving this repository with a web server and
@@ -122,9 +131,18 @@ Manual testing is used to ensure no regressions in areas not covered by tests.
 
 ### To-Do
 
+#### Figure out ESM without breaking preload and finish `electron-converter`
+
+I had to revert it to CJS to test out the IPC communication sending the frames
+to the main process, but in it, I now can't use screencast to produce the file.
+
+Changing to ESM will break the preload script (it will complain that it needs to
+be loaded using CJS in the browser window developer tools). I need to find a way
+to resolve this before I can get to generating the screencast file.
+
 #### Make runnable through a CLI for video to screencast conversion feature
 
-Reuse the `electron-generator` code to build a feature where when called using
+Use `electron-converter` to build a feature where when called using
 `npm tomashubelbauer/svg-screencast screencast.mp4`, a `screencast.svg` file
 would get generated in the same directory. Maybe also generate `screencast.html`
 which would be the `inspector` application with the SVG pre-loaded or hard-coded

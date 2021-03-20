@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-9" />
+    <script>
+      window.addEventListener('load', async () => {
+        let seek;
+        const fps = 24;
+
+        const video = document.querySelector('video');
+        const canvas = document.querySelector('canvas');
+
+        video.addEventListener('seeked', () => {
+          const context = canvas.getContext('2d');
+          context.drawImage(video, 0, 0);
+          seek?.resolve();
+        });
+
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+
+        const frames = ~~(video.duration * fps);
+        for (let index = 0; index < frames; index++) {
+          seek = defer();
+          video.currentTime = index / fps;
+          await seek.promise;
+          const blobDeferred = defer();
+          canvas.toBlob(blob => blobDeferred.resolve(blob));
+          window.postMessage(await (await blobDeferred.promise).arrayBuffer());
+        }
+      });
+
+      function defer() {
+        let resolve;
+        let reject;
+        const promise = new Promise((_resolve, _reject) => {
+          resolve = _resolve;
+          reject = _reject;
+        });
+
+        return { resolve, reject, promise };
+      }
+    </script>
+  </head>
+  <body>
+    <video src="sample.mp4"></video>
+    <canvas></canvas>
+  </body>
+</html>
