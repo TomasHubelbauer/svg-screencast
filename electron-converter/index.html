@@ -28,6 +28,8 @@
           canvas.toBlob(blob => blobDeferred.resolve(blob));
           window.postMessage(await (await blobDeferred.promise).arrayBuffer());
         }
+
+        window.postMessage(null);
       });
 
       function defer() {

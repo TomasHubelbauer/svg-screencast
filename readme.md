@@ -131,14 +131,7 @@ Manual testing is used to ensure no regressions in areas not covered by tests.
 
 ### To-Do
 
-#### Figure out ESM without breaking preload and finish `electron-converter`
-
-I had to revert it to CJS to test out the IPC communication sending the frames
-to the main process, but in it, I now can't use screencast to produce the file.
-
-Changing to ESM will break the preload script (it will complain that it needs to
-be loaded using CJS in the browser window developer tools). I need to find a way
-to resolve this before I can get to generating the screencast file.
+#### Change `electron-converter` IPC communication to sync for frames on demand
 
 #### Make runnable through a CLI for video to screencast conversion feature
 
