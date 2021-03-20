@@ -129,6 +129,15 @@ Manual testing is used to ensure no regressions in areas not covered by tests.
 
 ### To-Do
 
+#### Add a parameter for configuring noise tolerance for better video diffing
+
+Right now very slight video artifacts when converting video frames into an SVG
+screencast cause very large number of patches to exist between each frame. These
+patches have only very slight differences in the color and their number could be
+greatly reduced if the tolerance was non-zero and configurable. This problem
+only affects already converted video, not screenshots taken as lossless pictures
+and fed directly into SVG Screencast.
+
 #### Make runnable through a CLI for video to screencast conversion feature
 
 Use `electron-converter` to build a feature where when called using
