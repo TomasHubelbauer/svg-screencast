@@ -5,22 +5,46 @@
     <link rel="stylesheet" href="index.css" />
     <script>
       window.addEventListener('load', () => {
-        let seek;
         const fps = 10;
 
+        const input = document.querySelector('input');
         const video = document.querySelector('video');
         const canvas = document.querySelector('canvas');
 
+        //input.click();
+
+        let context;
+        let frames;
+        let seek;
+
+        input.addEventListener('change', () => {
+          if (input.files.length === 0) {
+            return;
+          }
+
+          if (input.files.length > 1) {
+            alert('Select only a single file!');
+            return;
+          }
+
+          const url = URL.createObjectURL(input.files[0]);
+          video.src = url;
+          input.remove();
+        });
+
+        video.addEventListener('loadedmetadata', () => {
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          context = canvas.getContext('2d');
+          frames = ~~(video.duration * fps);
+          window.postMessage({ type: 'load', frames });
+        });
+
         video.addEventListener('seeked', () => {
-          const context = canvas.getContext('2d');
           context.drawImage(video, 0, 0);
           seek?.resolve();
         });
 
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-
-        const frames = ~~(video.duration * fps);
         window.addEventListener('message', async event => {
           if (event.data.type !== 'screenshot') {
             return;
@@ -34,8 +58,6 @@
           canvas.toBlob(blob => blobDeferred.resolve(blob));
           window.postMessage({ type: 'frame', frame, stamp: video.currentTime * 1000, arrayBuffer: await (await blobDeferred.promise).arrayBuffer() });
         });
-
-        window.postMessage({ type: 'load', frames });
       });
 
       function defer() {
@@ -51,7 +73,8 @@
     </script>
   </head>
   <body>
-    <video src="sample.mp4"></video>
+    <input type="file" />
+    <video></video>
     <canvas></canvas>
   </body>
 </html>

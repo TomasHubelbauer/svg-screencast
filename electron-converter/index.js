@@ -4,7 +4,7 @@ import screencast from '../screencast.js';
 export default async function (electron) {
   await electron.app.whenReady();
 
-  const window = new electron.BrowserWindow({ width: 600, height: 400, show: false, webPreferences: { preload: electron.app.getAppPath() + '/preload/preload.js' } });
+  const window = new electron.BrowserWindow({ width: 600, height: 400, webPreferences: { preload: electron.app.getAppPath() + '/preload/preload.js' } });
   window.loadFile('index.html');
   await new Promise(resolve => window.webContents.once('dom-ready', resolve));
 
@@ -58,7 +58,7 @@ export default async function (electron) {
 
   await load.promise;
 
-  const stream = fs.createWriteStream('sample.svg');
+  const stream = fs.createWriteStream('result.svg');
   for await (const buffer of screencast(screenshots)) {
     stream.write(buffer);
   }
